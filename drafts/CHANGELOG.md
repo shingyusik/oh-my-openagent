@@ -5,6 +5,29 @@
 
 ---
 
+## v0.5.5 (2026-05-20) - 문서 보관 범위 정리
+
+### 변경 요약
+- **문서 범위 축소**: `docs/`는 원래 OMO의 정의/사용 문서만 남기고, `drafts/`는 현재 설계 중인 코딩 하네스 문서만 남김.
+- **OMO 개발계획 제거**: `docs/superpowers/*`와 모델 capability 유지보수 문서를 삭제해 제품 정의 문서와 개발계획 문서를 분리.
+- **부수 draft 선별 제거**: 통합 적용 계획과 GPT-5.5 검토 메모는 삭제하고, 설계 리뷰와 외부 하네스 서베이는 참고 자료로 유지.
+- **Companion Documents 정리**: 현재 설계 본문, 변경 이력, 설계 참고 자료만 연결.
+
+### 남긴 문서 범위
+- `docs/` - OMO의 manifesto, guide, reference, examples, troubleshooting, legal 문서
+- `drafts/my-harness-design.md` - 현재 코딩 하네스 설계의 진입점
+- `drafts/design/*` - 탑다운 구조의 코딩 하네스 상세 설계
+- `drafts/review-v0.5.1.md` - v0.5.1 설계 리뷰
+- `drafts/surveys/*` - 외부 하네스 서베이
+- `drafts/CHANGELOG.md` - 설계 변경 이력
+
+### 제거한 문서 범위
+- OMO 개발계획 및 구현 메모
+- 통합 적용 계획
+- GPT-5.5 검토 메모
+
+---
+
 ## v0.5.4 (2026-05-20) - design 문서 탑다운 재구조화
 
 ### 변경 요약
@@ -30,7 +53,6 @@
 ### 영향 받은 파일
 - `my-harness-design.md` - design 문서표와 상세 링크 갱신
 - `drafts/design/*` - 8개 설계 문서 rename + 책임 단위별 재작성
-- `application-plan.md` / `review-v0.5.1.md` - 이전 design 파일명 참조 갱신
 
 ---
 
@@ -96,30 +118,10 @@
 
 ---
 
-## application-plan v0.3 (2026-05-20) — stale 정리 + split 구조 반영
-
-> 본 항목은 `application-plan.md` 자체의 변경 이력. design 본체와는 분리.
+## v0.5.1 (2026-05-20) - 외부 패턴 누락분 적용
 
 ### 변경 요약
-- **참조 갱신**: 모든 `§2.2`/`§2.3`/`§3 Phase` 류 stale 섹션 번호 → `design/0X-*.md` 파일 + 섹션 참조로 교체
-- **Status 컬럼 추가**: S/A/B-tier 매트릭스 모든 행에 ✅ / ⚙️ / ⏳ / ⛔ 적용 상태 표기
-- **v0.4/v0.5 변경 반영**: PM 6-tier, 4-step 사이클, DoD 의무화, Vision entity 등 누락된 진화 흡수
-- **§4 obsolete 제거**: 기존 "v0.3 메인 설계 문서 갱신 plan"은 갱신이 완료되어 의미 없음. "구현 페이징"으로 재작성
-- **§7 흡수**: "v0.3 추가 요구 — TDD/Compound/자기 진화" 별도 섹션 → §3 "사용자 추가 요구의 외부 패턴 매핑"으로 정상화
-- **충돌 표 보강**: v0.4/v0.5 추가 충돌 (GSD discuss-plan-execute-verify vs worktree 병렬, compound STRATEGY vs Vision entity, GSD adversarial verifier 등) 4건 추가
-- **구현 페이즈 신설**: design 단계는 완료(v0.5.1)되었으므로 impl v0.1 → v0.9 로드맵으로 갱신
-
-### 적용 status 요약 (application-plan v0.3 시점)
-- **S-tier (13개)**: 모두 ✅ 적용 완료
-- **A-tier (13개)**: 11개 ✅, 1개 ⚙️ (A12 fingerprint 알고리즘 명시 보강 필요), 1개 ⏳ (A10 컨벤션 skill 작성 시 적용)
-- **B-tier (8개)**: 3개 ✅, 2개 ⚙️ (B3 patch harvest, B6 REQ 커버리지), 3개 ⏳ (B1/B2 + 구현 단계 결정)
-
----
-
-## v0.5.1 (2026-05-20) — application-plan 누락 패턴 적용
-
-### 변경 요약
-- application-plan.md의 S-tier에서 design에 누락되었던 5개 패턴 적용 완료.
+- 외부 하네스 패턴 정리에서 design에 누락되었던 5개 패턴 적용 완료.
 
 ### 신규 결정 사항
 

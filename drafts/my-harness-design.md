@@ -68,18 +68,15 @@
 
 ## Companion Documents
 
-### 외부 하네스 서베이
-프레임워크별 상세 분석. 본 하네스와 별개의 외부 자료.
+### 설계 참고 자료
+- [`review-v0.5.1.md`](./review-v0.5.1.md) — v0.5.1 설계 리뷰와 보강 제안.
 - [`surveys/superpowers.md`](./surveys/superpowers.md) — obra/superpowers
 - [`surveys/compound-engineering.md`](./surveys/compound-engineering.md) — Every Inc 컴파운드 엔지니어링
 - [`surveys/gstack.md`](./surveys/gstack.md) — Garry Tan gstack
 - [`surveys/get-shit-done.md`](./surveys/get-shit-done.md) — GSD 하네스
 
-### 통합 계획
-- [`application-plan.md`](./application-plan.md) (v0.3) — 위 4개 서베이의 패턴을 본 설계에 어떻게 매핑할지. S/A/B-tier 우선순위 + 적용 status + 구현 페이징 로드맵. **S-tier 13개 전부 적용 완료**.
-
 ### 변경 이력
-- [`CHANGELOG.md`](./CHANGELOG.md) — v0.1 ~ v0.5.4 모든 버전 변경 요약 + 결정 사항 누적 (51건).
+- [`CHANGELOG.md`](./CHANGELOG.md) — v0.1 ~ v0.5.5 모든 버전 변경 요약 + 결정 사항 누적.
 
 ---
 
