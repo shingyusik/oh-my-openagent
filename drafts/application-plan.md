@@ -12,7 +12,7 @@
 
 ## 0. 한 줄 결론
 
-> 4개 외부 하네스에서 **S-tier 13개 + A-tier 13개 + B-tier 8개 = 총 34개 패턴**을 발굴. **S-tier 13개 전부 design에 적용 완료** (v0.5.1 시점). A-tier는 대부분 적용, B-tier는 옵션으로 보류. 가장 위험한 발견은 GSD의 `git stash` worktree-leak — `design/06-execution-infra.md` §6.2.3에 prohibition layer로 명시 적용.
+> 4개 외부 하네스에서 **S-tier 13개 + A-tier 13개 + B-tier 8개 = 총 34개 패턴**을 발굴. **S-tier 13개 전부 design에 적용 완료** (v0.5.1 시점). A-tier는 대부분 적용, B-tier는 옵션으로 보류. 가장 위험한 발견은 GSD의 `git stash` worktree-leak — `design/03-l1-foreman-execution.md` §6.2.3에 prohibition layer로 명시 적용.
 
 ---
 
@@ -24,37 +24,37 @@
 
 | # | 패턴 | 출처 | Impact | Fit | Status | design 위치 |
 |---|---|---|---|---|---|---|
-| S1 | **Stable U-ID** (plan→commit→리뷰→PR 관통) | compound | ★★★ | ★★★ | ✅ | `02-agents.md` worker step + `06-execution-infra.md` §6.2.1 worktree 경로 컨벤션 |
-| S2 | **2-stage 리뷰 분리** (spec / quality 별도 task()) | superpowers | ★★★ | ★★★ | ✅ | `02-agents.md` §2.3.1 7-step (spec-review + quality-review) |
-| S3 | **Worktree prohibition layer** (git stash/reset-hard 금지 + HEAD 검증) | GSD | ★★★ | ★★★ | ✅ | `06-execution-infra.md` §6.2.3 |
-| S4 | **STATE.md O_EXCL 잠금** | GSD | ★★★ | ★★★ | ✅ | `06-execution-infra.md` §6.3 |
-| S5 | **Analysis-Paralysis Guard** (5 read-only → 자백) | GSD | ★★ | ★★★ | ✅ | `05-sentinel.md` §5.3 `analysis_paralysis` 룰 (P0) |
-| S6 | **4-level verifier** (exists→substantive→wired→data flow) | GSD | ★★★ | ★★★ | ✅ | `05-sentinel.md` §5.9 별도 방법론 + DoD verify + spec-review + merge gate에서 사용 |
-| S7 | **Slopcheck** (패키지 정합성 [VERIFIED/ASSUMED/SLOP]) | GSD | ★★★ | ★★★ | ✅ | `05-sentinel.md` §5.3 `slopcheck` 룰 (P0 [NEVER_GATE]) |
-| S8 | **Self-Check before completion** | GSD | ★★★ | ★★★ | ✅ | `05-sentinel.md` §5.3 `self_check_required` + `02-agents.md` §2.3.1 commit step Self-Check 블록 의무 |
-| S9 | **Knowledge compounding** (`docs/solutions/<cat>/<slug>.md`) | compound | ★★★ | ★★ | ✅ | `04-workflow.md` §4.5 Tier 2 + `.harness/lessons/<category>/` |
-| S10 | **Fingerprint-merge + confidence anchor** | compound | ★★★ | ★★★ | ✅ | `05-sentinel.md` §5.6 |
-| S11 | **TDD-mandatory RED→GREEN→REFACTOR** | superpowers + GSD | ★★★ | ★★★ | ✅ | P9 (`01-principles.md`) + `02-agents.md` §2.3.1 7-step + `05-sentinel.md` `tdd_violation` 룰 |
-| S12 | **3-tier Compound** | compound + gstack | ★★★ | ★★★ | ✅ | P10 + `04-workflow.md` §4.5 Tier 1/2/3 + `05-sentinel.md` `compound_required` 룰 |
-| S13 | **Harness Evolution (Phase 8)** | superpowers + compound + gstack | ★★★ | ★★★ | ✅ | P11 + `04-workflow.md` §4.6 + Agent-Architect 워커 6-step |
+| S1 | **Stable U-ID** (plan→commit→리뷰→PR 관통) | compound | ★★★ | ★★★ | ✅ | `04-l2-worker-profiles.md` worker step + `03-l1-foreman-execution.md` §6.2.1 worktree 경로 컨벤션 |
+| S2 | **2-stage 리뷰 분리** (spec / quality 별도 task()) | superpowers | ★★★ | ★★★ | ✅ | `04-l2-worker-profiles.md` §2.3.1 7-step (spec-review + quality-review) |
+| S3 | **Worktree prohibition layer** (git stash/reset-hard 금지 + HEAD 검증) | GSD | ★★★ | ★★★ | ✅ | `03-l1-foreman-execution.md` §6.2.3 |
+| S4 | **STATE.md O_EXCL 잠금** | GSD | ★★★ | ★★★ | ✅ | `03-l1-foreman-execution.md` §6.3 |
+| S5 | **Analysis-Paralysis Guard** (5 read-only → 자백) | GSD | ★★ | ★★★ | ✅ | `05-l1-sentinel-quality.md` §5.3 `analysis_paralysis` 룰 (P0) |
+| S6 | **4-level verifier** (exists→substantive→wired→data flow) | GSD | ★★★ | ★★★ | ✅ | `05-l1-sentinel-quality.md` §5.9 별도 방법론 + DoD verify + spec-review + merge gate에서 사용 |
+| S7 | **Slopcheck** (패키지 정합성 [VERIFIED/ASSUMED/SLOP]) | GSD | ★★★ | ★★★ | ✅ | `05-l1-sentinel-quality.md` §5.3 `slopcheck` 룰 (P0 [NEVER_GATE]) |
+| S8 | **Self-Check before completion** | GSD | ★★★ | ★★★ | ✅ | `05-l1-sentinel-quality.md` §5.3 `self_check_required` + `04-l2-worker-profiles.md` §2.3.1 commit step Self-Check 블록 의무 |
+| S9 | **Knowledge compounding** (`docs/solutions/<cat>/<slug>.md`) | compound | ★★★ | ★★ | ✅ | `06-cross-layer-workflows.md` §4.5 Tier 2 + `.harness/lessons/<category>/` |
+| S10 | **Fingerprint-merge + confidence anchor** | compound | ★★★ | ★★★ | ✅ | `05-l1-sentinel-quality.md` §5.6 |
+| S11 | **TDD-mandatory RED→GREEN→REFACTOR** | superpowers + GSD | ★★★ | ★★★ | ✅ | P9 (`01-overview.md`) + `04-l2-worker-profiles.md` §2.3.1 7-step + `05-l1-sentinel-quality.md` `tdd_violation` 룰 |
+| S12 | **3-tier Compound** | compound + gstack | ★★★ | ★★★ | ✅ | P10 + `06-cross-layer-workflows.md` §4.5 Tier 1/2/3 + `05-l1-sentinel-quality.md` `compound_required` 룰 |
+| S13 | **Harness Evolution (Phase 8)** | superpowers + compound + gstack | ★★★ | ★★★ | ✅ | P11 + `06-cross-layer-workflows.md` §4.6 + Agent-Architect 워커 6-step |
 
 ### A-tier — 강력 추천 (13개)
 
 | # | 패턴 | 출처 | Status | design 위치 |
 |---|---|---|---|---|
-| A1 | **Plan placeholder 금지 validator** | superpowers | ✅ | `05-sentinel.md` §5.3 `plan_placeholder` 룰 + `02-agents.md` Planning Worker 자기 출력 검증 책무 |
-| A2 | **3-failure 아키텍처 escalation** | superpowers | ✅ | `04-workflow.md` §4.7.3 Ralph 루프 circuit-breaker |
-| A3 | **Brainstorming 9-step 게이트** | superpowers | ✅ | `04-workflow.md` §4.2 Phase 0 인터뷰 통합 |
-| A4 | **Adaptive specialist gating** (hit-rate 0 → auto-disable) | gstack | ✅ | `05-sentinel.md` §5.7 |
-| A5 | **AUTO-FIX vs ASK 분류** | gstack | ✅ | `05-sentinel.md` §5.8 |
-| A6 | **`.planning/` 파일 메모리 트리** | GSD | ✅ | `06-execution-infra.md` §6.4 `.harness/` 디렉토리 |
-| A7 | **Phase 2.5 discoverability** (AGENTS.md surface) | compound | ✅ | `04-workflow.md` §4.5 Tier 2의 Agent-Architect 책무 |
-| A8 | **ETHOS.md preamble injection** | gstack | ✅ | `.harness/ETHOS.md` (`06-execution-infra.md` §6.4) — 모든 워커 preamble |
+| A1 | **Plan placeholder 금지 validator** | superpowers | ✅ | `05-l1-sentinel-quality.md` §5.3 `plan_placeholder` 룰 + `04-l2-worker-profiles.md` Planning Worker 자기 출력 검증 책무 |
+| A2 | **3-failure 아키텍처 escalation** | superpowers | ✅ | `06-cross-layer-workflows.md` §4.7.3 Ralph 루프 circuit-breaker |
+| A3 | **Brainstorming 9-step 게이트** | superpowers | ✅ | `06-cross-layer-workflows.md` §4.2 Phase 0 인터뷰 통합 |
+| A4 | **Adaptive specialist gating** (hit-rate 0 → auto-disable) | gstack | ✅ | `05-l1-sentinel-quality.md` §5.7 |
+| A5 | **AUTO-FIX vs ASK 분류** | gstack | ✅ | `05-l1-sentinel-quality.md` §5.8 |
+| A6 | **`.planning/` 파일 메모리 트리** | GSD | ✅ | `03-l1-foreman-execution.md` §6.4 `.harness/` 디렉토리 |
+| A7 | **Phase 2.5 discoverability** (AGENTS.md surface) | compound | ✅ | `06-cross-layer-workflows.md` §4.5 Tier 2의 Agent-Architect 책무 |
+| A8 | **ETHOS.md preamble injection** | gstack | ✅ | `.harness/ETHOS.md` (`03-l1-foreman-execution.md` §6.4) — 모든 워커 preamble |
 | A9 | **`/learn` typed memory** (patterns/pitfalls/preferences/architecture) | gstack | ✅ | `.harness/lessons/<category>/` 6개 카테고리 (architecture/bugs/perf/ops/process/prompts) |
 | A10 | **"Use when ..." description 컨벤션** | superpowers | ⏳ | skill 본문 작성 시 적용 예정 (현재 design에 컨벤션 명시는 누락) |
-| A11 | **TDD 예외 게이트** (`/tdd-exception`) | superpowers | ✅ | `02-agents.md` §2.3.1 TDD 예외 + `07-inventory.md` §7.4.5 명령 |
+| A11 | **TDD 예외 게이트** (`/tdd-exception`) | superpowers | ✅ | `04-l2-worker-profiles.md` §2.3.1 TDD 예외 + `07-runtime-inventory.md` §7.4.5 명령 |
 | A12 | **Lesson fingerprint-merge** (Tier 2/3 dedup) | compound | ⚙️ | Sentinel S10에 사용되지만 Compound Tier 2/3에는 명시적 알고리즘 미작성. 구현 시 보강 필요 |
-| A13 | **Proposal 메타-회귀 deprecate** | gstack | ✅ | `04-workflow.md` §4.6.5 메타-회귀 방지 |
+| A13 | **Proposal 메타-회귀 deprecate** | gstack | ✅ | `06-cross-layer-workflows.md` §4.6.5 메타-회귀 방지 |
 
 ### B-tier — 가능하면 (8개)
 
@@ -62,12 +62,12 @@
 |---|---|---|---|---|
 | B1 | **SKILL.md.tmpl + host adapter** | gstack | ⏳ | 멀티 런타임 지원 시 검토. 현재 OmO 단일. |
 | B2 | **Persona reviewer를 워커 lens로** | compound | ⏳ | 각 L2 워커 안에 2-3 persona. 구현 단계에서 결정 |
-| B3 | **`lib/worktree.ts` patch harvest** (SHA256 dedup) | gstack | ⚙️ | `06-execution-infra.md` §6.2.4에 dedup 룰 명시. 코드 구현 시 적용 |
-| B4 | **Wave execution** (pre-commit 1회/wave) | GSD | ✅ | `06-execution-infra.md` §6.2.2 wave 머지 패턴 |
-| B5 | **Skill-TDD** (baseline 실패 보고) | superpowers | ✅ | Agent-Architect의 `step:baseline` 의무 (`02-agents.md` §2.3.3) |
-| B6 | **Decision Coverage Gates** (REQ-ID 미커버 차단) | GSD | ⚙️ | `06-execution-infra.md` §6.4의 REQUIREMENTS.md/CONTEXT.md에 토대. Maestro 종료 조건에 미완전 통합 |
-| B7 | **Lesson 자동 inject (Librarian)** | gstack | ✅ | `02-agents.md` Librarian Helper 책무 + `04-workflow.md` §4.5 재사용 메커니즘 |
-| B8 | **System-level lesson → ETHOS 승급** | gstack | ✅ | `04-workflow.md` §4.5 Tier 3 |
+| B3 | **`lib/worktree.ts` patch harvest** (SHA256 dedup) | gstack | ⚙️ | `03-l1-foreman-execution.md` §6.2.4에 dedup 룰 명시. 코드 구현 시 적용 |
+| B4 | **Wave execution** (pre-commit 1회/wave) | GSD | ✅ | `03-l1-foreman-execution.md` §6.2.2 wave 머지 패턴 |
+| B5 | **Skill-TDD** (baseline 실패 보고) | superpowers | ✅ | Agent-Architect의 `step:baseline` 의무 (`04-l2-worker-profiles.md` §2.3.3) |
+| B6 | **Decision Coverage Gates** (REQ-ID 미커버 차단) | GSD | ⚙️ | `03-l1-foreman-execution.md` §6.4의 REQUIREMENTS.md/CONTEXT.md에 토대. Maestro 종료 조건에 미완전 통합 |
+| B7 | **Lesson 자동 inject (Librarian)** | gstack | ✅ | `04-l2-worker-profiles.md` Librarian Helper 책무 + `06-cross-layer-workflows.md` §4.5 재사용 메커니즘 |
+| B8 | **System-level lesson → ETHOS 승급** | gstack | ✅ | `06-cross-layer-workflows.md` §4.5 Tier 3 |
 
 ### Skip — 이식 X (정리)
 
@@ -78,7 +78,7 @@
 | superpowers | `dispatching-parallel-agents` skill | Foreman 책임 |
 | superpowers | SessionStart 폴리글랏 hook | 워커별 prompt에 직접 inject |
 | superpowers | TDD-as-absolute-law (global) | Design/Documentation/Planning Worker 제외 후 선택 적용 |
-| compound | 51 agent 평면 구조 | 13 워커 + 내부 lens로 통합 |
+| compound | 51 agent 평면 구조 | seed worker profiles + 내부 lens로 통합 |
 | compound | Rails 전용 reviewer (DHH/Kieran-rails/swift-ios) | 스택 불일치 |
 | compound | 멀티 플랫폼 변환기 (.cursor-plugin/.codex-plugin) | OmO + Claude Code만 사용 |
 | compound | `ce-strategy` STRATEGY.md | 본 Vision (V-*) entity가 대체 |
@@ -103,15 +103,15 @@
 
 | 충돌 | 결정 | 사유 | design 위치 |
 |---|---|---|---|
-| superpowers "1 task = fresh subagent" vs compound "사이클별 outputs 연속성" | **둘 다 채택**: 워커 *내부*는 fresh subagent (S2), 사이클 *간*은 `.harness/lessons/` + `STATE.md`로 연속성 | 격리와 학습은 다른 layer | `02-agents.md` §2.3 + `04-workflow.md` §4.5 |
-| GSD 67 command vs Maestro entry | **Maestro 유지** (P12) | 단일 entry로 사용자 인지 부담 ↓ | `01-principles.md` P12 |
-| compound 51 agent vs 13 워커 | **13 워커 유지**, persona는 워커 내부 lens로 흡수 (B2) | 평면 51개는 유지보수 부담 | `02-agents.md` §2.2 |
-| superpowers TDD-absolute-law vs prose/documentation workers | **선택 적용**: 코드 워커만 ✅, prose 워커 ❌, Agent-Architect ⚙️ skill-TDD | 산출물에 맞는 baseline-fail 검증 | `02-agents.md` §2.2 TDD 컬럼 |
-| GSD "discuss→plan→execute→verify 순차" vs worktree 병렬 | **둘 다 채택**: phase는 직선 통과 (P14), 같은 phase 내 독립 노드는 worktree 병렬 | DAG가 의존성 표현 | `04-workflow.md` §4.3 |
-| compound STRATEGY.md (영구 product anchor) vs Vision (V-*) entity | **Vision entity 채택, STRATEGY.md 미채택** | 본 Vision이 더 작은 단위 | `03-pm-model.md` §3.2 |
-| gstack adaptive gating의 자동 비활성 vs Phase 8 deprecate | **레이어 분리**: gating(Sentinel 룰 내부) vs deprecation(Phase 8 메타) | 같은 발상 다른 시간축 | `05-sentinel.md` §5.7 + `04-workflow.md` §4.6.5 |
-| compound `ce-compound`의 자동 트리거 어구 vs 의무화 | **의무화 채택** (P10) | 매 task/phase/cycle 강제 → 우연 트리거 신뢰 X | `01-principles.md` P10 + `05-sentinel.md` `compound_required` |
-| GSD adversarial verifier 기본 가정 vs 일반 verifier | **adversarial 채택** | "통과 증거 없으면 실패" | `05-sentinel.md` §5.9 4-level verifier |
+| superpowers "1 task = fresh subagent" vs compound "사이클별 outputs 연속성" | **둘 다 채택**: 워커 *내부*는 fresh subagent (S2), 사이클 *간*은 `.harness/lessons/` + `STATE.md`로 연속성 | 격리와 학습은 다른 layer | `04-l2-worker-profiles.md` §2.3 + `06-cross-layer-workflows.md` §4.5 |
+| GSD 67 command vs Maestro entry | **Maestro 유지** (P12) | 단일 entry로 사용자 인지 부담 ↓ | `01-overview.md` P12 |
+| compound 51 agent vs worker profiles | **seed worker profiles 유지**, persona는 worker 내부 lens로 흡수 (B2) | 평면 51개는 유지보수 부담 | `04-l2-worker-profiles.md` |
+| superpowers TDD-absolute-law vs prose/documentation workers | **선택 적용**: 코드 워커만 ✅, prose 워커 ❌, Agent-Architect ⚙️ skill-TDD | 산출물에 맞는 baseline-fail 검증 | `04-l2-worker-profiles.md` §2.2 TDD 컬럼 |
+| GSD "discuss→plan→execute→verify 순차" vs worktree 병렬 | **둘 다 채택**: phase는 직선 통과 (P14), 같은 phase 내 독립 노드는 worktree 병렬 | DAG가 의존성 표현 | `06-cross-layer-workflows.md` §4.3 |
+| compound STRATEGY.md (영구 product anchor) vs Vision (V-*) entity | **Vision entity 채택, STRATEGY.md 미채택** | 본 Vision이 더 작은 단위 | `02-l0-maestro-pm.md` §3.2 |
+| gstack adaptive gating의 자동 비활성 vs Phase 8 deprecate | **레이어 분리**: gating(Sentinel 룰 내부) vs deprecation(Phase 8 메타) | 같은 발상 다른 시간축 | `05-l1-sentinel-quality.md` §5.7 + `06-cross-layer-workflows.md` §4.6.5 |
+| compound `ce-compound`의 자동 트리거 어구 vs 의무화 | **의무화 채택** (P10) | 매 task/phase/cycle 강제 → 우연 트리거 신뢰 X | `01-overview.md` P10 + `05-l1-sentinel-quality.md` `compound_required` |
+| GSD adversarial verifier 기본 가정 vs 일반 verifier | **adversarial 채택** | "통과 증거 없으면 실패" | `05-l1-sentinel-quality.md` §5.9 4-level verifier |
 
 ---
 
@@ -128,7 +128,7 @@
 | GSD `gsd-verifier` 4-level | TDD의 GREEN 단계 검증에 Level 2(substantive) + Level 3(wired) 결합 |
 | gstack `/qa-only` skill | QA 워커가 다른 워커와 동일 7-step, 코드 = 테스트로 해석 |
 
-**TDD 적용 매트릭스**: `02-agents.md` §2.2 TDD 컬럼 참조.
+**TDD 적용 매트릭스**: `04-l2-worker-profiles.md` §2.2 TDD 컬럼 참조.
 
 ### 3.2 Compound 3-tier (P10)
 
@@ -154,9 +154,9 @@
 | GSD `gsd-assumptions-analyzer` | implicit assumption 추출 → 진화 trigger 신호 |
 | GSD `gsd-codebase-mapper` drift detector | codebase 변화 감지 → 새 Sentinel 룰 후보 신호 |
 
-**진화 사이클**: `04-workflow.md` §4.6.2 6-step (diagnose → baseline → design → propose → peer-review → compound).
+**진화 사이클**: `06-cross-layer-workflows.md` §4.6.2 6-step (diagnose → baseline → design → propose → peer-review → compound).
 
-**자기 참조**: 6-step 패턴은 워커 내부 step 패턴(`02-agents.md` §2.3) 그 자체. 하네스가 자기 자신의 패턴을 자기 진화에도 사용.
+**자기 참조**: 6-step 패턴은 워커 내부 step 패턴(`04-l2-worker-profiles.md` §2.3) 그 자체. 하네스가 자기 자신의 패턴을 자기 진화에도 사용.
 
 ### 3.4 PM 6-tier + 4-step 사이클 + DoD (P12~P16)
 
@@ -216,6 +216,6 @@ design 단계가 v0.5.1으로 마무리되었으므로 이제 **구현 페이즈
 3. **Maestro 시스템 프롬프트 v0** — 본 하네스의 가장 큰 프롬프트 (단일 창구 + PM 6엔티티 + 4-step driver + DoD 인터뷰어 + 보고서 변환기)
 4. **`pm-board` skill 본문** — 6엔티티 CRUD + 우선순위 매트릭스 + 4-step 전이 + DoD 인터뷰 + 중복 감지
 5. **Task Spec / Task Report 스키마 동결** — JSON Schema 또는 zod로 검증
-6. **Sentinel 룰셋 → 정적 도구 매핑 구체화** — 각 룰을 실제 명령으로 (`05-sentinel.md` §5.5 표를 실행 명령으로)
-7. **Foreman의 worktree prohibition hook 의사코드** (`design/06-execution-infra.md` §6.2.3 실행 코드)
+6. **Sentinel 룰셋 → 정적 도구 매핑 구체화** — 각 룰을 실제 명령으로 (`05-l1-sentinel-quality.md` §5.5 표를 실행 명령으로)
+7. **Foreman의 worktree prohibition hook 의사코드** (`design/03-l1-foreman-execution.md` §6.2.3 실행 코드)
 8. **작은 일반 코딩 프로젝트로 end-to-end dry-run** → 회고 → 다음 버전 튜닝

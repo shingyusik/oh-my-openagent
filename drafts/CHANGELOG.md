@@ -5,6 +5,35 @@
 
 ---
 
+## v0.5.4 (2026-05-20) - design 문서 탑다운 재구조화
+
+### 변경 요약
+- **문서 구조 재배치**: `design/`을 overview → L0 → L1 → L2 → Sentinel → cross-layer → runtime → implementation 순서로 재구성.
+- **첫 문서 역할 축소**: `01-overview.md`는 디테일을 배제하고 전체 컨셉, 고정 코어, 적응형 레이어, 아키텍처 계층만 설명.
+- **계층별 문서 분리**: Maestro/PM, Foreman execution, worker profiles, Sentinel을 각각 독립 문서로 분리.
+- **횡단 워크플로 분리**: Phase 0, 4-step cycle, Compound, Phase 8, Ralph loop를 `06-cross-layer-workflows.md`로 이동.
+- **런타임/명령 분리**: 파일 인벤토리, PROJECT_PROFILE, CONVENTIONS, STATE, 사용자 명령을 `07-runtime-inventory.md`에 모음.
+
+### 신규 문서 구조
+
+| # | 파일 | 책임 |
+|---|---|---|
+| 01 | `01-overview.md` | 전체 컨셉, 원칙, 아키텍처 지도 |
+| 02 | `02-l0-maestro-pm.md` | Maestro Core + private PM sub-agent + PM 엔티티 |
+| 03 | `03-l1-foreman-execution.md` | Foreman, DAG, worktree, Task Spec/Report |
+| 04 | `04-l2-worker-profiles.md` | worker profile과 내부 step flow |
+| 05 | `05-l1-sentinel-quality.md` | Sentinel 품질/워크플로 게이트 |
+| 06 | `06-cross-layer-workflows.md` | 계층을 가로지르는 실행/학습/진화 흐름 |
+| 07 | `07-runtime-inventory.md` | 런타임 파일, 상태, 프로필, 명령 |
+| 08 | `08-implementation-roadmap.md` | 구현 매핑, 로드맵, 열린 결정 |
+
+### 영향 받은 파일
+- `my-harness-design.md` - design 문서표와 상세 링크 갱신
+- `drafts/design/*` - 8개 설계 문서 rename + 책임 단위별 재작성
+- `application-plan.md` / `review-v0.5.1.md` - 이전 design 파일명 참조 갱신
+
+---
+
 ## v0.5.3 (2026-05-20) - 일반 코딩 하네스화
 
 ### 변경 요약
@@ -26,11 +55,11 @@
 
 ### 영향 받은 파일
 - `my-harness-design.md` - 제목과 빠른 시작에서 SaaS 제거
-- `design/01-principles.md` - P2를 project-adaptive agents로 재정의
-- `design/02-agents.md` - 고정 L2 직책을 진화형 worker profiles로 전환
-- `design/05-sentinel.md` - 스택 종속 룰과 도구 매핑을 프로젝트 프로필 기반으로 전환
-- `design/07-inventory.md` - 고정 SaaS/모노레포 스택 대신 PROJECT_PROFILE/CONVENTIONS 추가
-- `design/08-implementation.md` - `project-profile`, `convention-registry`, 일반 코딩 하네스 기본 결정 추가
+- `design/01-overview.md` - P2를 project-adaptive agents로 재정의
+- `design/04-l2-worker-profiles.md` - 고정 L2 직책을 진화형 worker profiles로 전환
+- `design/05-l1-sentinel-quality.md` - 스택 종속 룰과 도구 매핑을 프로젝트 프로필 기반으로 전환
+- `design/07-runtime-inventory.md` - 고정 SaaS/모노레포 스택 대신 PROJECT_PROFILE/CONVENTIONS 추가
+- `design/08-implementation-roadmap.md` - `project-profile`, `convention-registry`, 일반 코딩 하네스 기본 결정 추가
 
 ---
 
@@ -57,13 +86,13 @@
 
 ### 영향 받은 파일
 - `my-harness-design.md` - 한 줄 요약과 계층도에서 Maestro Core + private PM sub-agent 구조 반영
-- `design/01-principles.md` - P12를 단일 surface + decision owner로 재정의
-- `design/02-agents.md` - 에이전트 수 18 + helpers로 갱신, private PM sub-agent roster 추가
-- `design/03-pm-model.md` - 쓰기 권한, 상태 전이, Task Spec/Report 인터페이스를 위임 구조로 갱신
-- `design/04-workflow.md` - Phase 0과 4-step cycle을 Maestro Core + private PM sub-agent 흐름으로 갱신
-- `design/06-execution-infra.md` - 4-level context isolation과 Maestro Core 컨텍스트 상한 추가
-- `design/07-inventory.md` - agent/skill inventory에 private PM sub-agent와 `pm-delegation` 추가
-- `design/08-implementation.md` - 구현 매핑, 우선순위, v0.6 기본 결정 추가
+- `design/01-overview.md` - P12를 단일 surface + decision owner로 재정의
+- `design/04-l2-worker-profiles.md` - 에이전트 수 18 + helpers로 갱신, private PM sub-agent roster 추가
+- `design/02-l0-maestro-pm.md` - 쓰기 권한, 상태 전이, Task Spec/Report 인터페이스를 위임 구조로 갱신
+- `design/06-cross-layer-workflows.md` - Phase 0과 4-step cycle을 Maestro Core + private PM sub-agent 흐름으로 갱신
+- `design/03-l1-foreman-execution.md` - 4-level context isolation과 Maestro Core 컨텍스트 상한 추가
+- `design/07-runtime-inventory.md` - agent/skill inventory에 private PM sub-agent와 `pm-delegation` 추가
+- `design/08-implementation-roadmap.md` - 구현 매핑, 우선순위, v0.6 기본 결정 추가
 
 ---
 
@@ -103,11 +132,11 @@
 | 39 | 4-level Verifier 방법론 표준화 | EXISTS → SUBSTANTIVE → WIRED → REAL DATA FLOW. DoD verify + worker spec-review + merge gate에서 사용. adversarial 기본 가정 ("통과 증거 없으면 실패") |
 
 ### 영향 받은 파일
-- `design/05-sentinel.md` — 룰 4종 + §5.9 4-level verifier 방법론 신규 섹션
-- `design/02-agents.md` — 7-step에 self-check 출력 의무 명시, 5-step에 plan_placeholder 게이트 추가, Strategist 책무 보강
-- `design/04-workflow.md` — Review 단계 DoD 검증에 4-level verifier 명시
-- `design/01-principles.md` — P1/P5 강제 메커니즘 표에 신규 4룰 + 방법론 매핑 추가
-- `design/08-implementation.md` — S5/S6/S7/S8/A1의 본 설계 위치 정확화
+- `design/05-l1-sentinel-quality.md` — 룰 4종 + §5.9 4-level verifier 방법론 신규 섹션
+- `design/04-l2-worker-profiles.md` — 7-step에 self-check 출력 의무 명시, 5-step에 plan_placeholder 게이트 추가, Strategist 책무 보강
+- `design/06-cross-layer-workflows.md` — Review 단계 DoD 검증에 4-level verifier 명시
+- `design/01-overview.md` — P1/P5 강제 메커니즘 표에 신규 4룰 + 방법론 매핑 추가
+- `design/08-implementation-roadmap.md` — S5/S6/S7/S8/A1의 본 설계 위치 정확화
 
 ---
 

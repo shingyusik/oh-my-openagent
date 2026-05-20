@@ -55,14 +55,14 @@
 
 | # | 파일 | 내용 |
 |---|---|---|
-| 01 | [**원칙**](./design/01-principles.md) | P1~P16 비협상 원칙 + 강제 메커니즘 매핑 |
-| 02 | [**에이전트**](./design/02-agents.md) | 코어 에이전트 + 진화형 worker profiles, 계층 구조, 7/5/6-step 워커 내부, 모델 할당 |
-| 03 | [**PM 데이터 모델**](./design/03-pm-model.md) | Vision/Roadmap/Milestone/Backlog/BacklogItem/Task 6-tier 엔티티 모델, 마크다운 스키마, 상태 전이, Maestro Core↔PM sub-agent↔Foreman Task Spec/Report 인터페이스 |
-| 04 | [**워크플로**](./design/04-workflow.md) | 실행 모드, Phase 0 부트스트랩, 4-step 사이클(Refinement/Planning/Execution/Review), Compound 3-tier, Phase 8 진화, Ralph 루프 종료 조건 |
-| 05 | [**Sentinel**](./design/05-sentinel.md) | 룰 카탈로그 (PM 워크플로/TDD/Compound/아키텍처/dead code/over-engineering 등), 2-tier 비용 제어, fingerprint-merge, adaptive gating, AUTO-FIX/ASK |
-| 06 | [**실행 인프라**](./design/06-execution-infra.md) | Worktree 병렬화, prohibition layer, 컨텍스트 격리, STATE.md O_EXCL lock, `.harness/` 디렉토리 |
-| 07 | [**인벤토리 & 명령**](./design/07-inventory.md) | 전체 디렉토리 구조, 프로젝트 프로필, 진화형 컨벤션/워커, 사용자 명령 인터페이스 |
-| 08 | [**구현 매핑**](./design/08-implementation.md) | oh-my-openagent 매핑, 외부 하네스 패턴 통합, 다음 액션, 열린 결정 사항 |
+| 01 | [**Overview**](./design/01-overview.md) | 전체 컨셉, 고정 코어, 적응형 레이어, 아키텍처 계층 지도 |
+| 02 | [**L0 Maestro + PM**](./design/02-l0-maestro-pm.md) | Maestro Core, private PM sub-agent, 6-tier PM 엔티티 |
+| 03 | [**L1 Foreman**](./design/03-l1-foreman-execution.md) | Task Spec, DAG, worktree, merge, Task Report |
+| 04 | [**L2 Worker Profiles**](./design/04-l2-worker-profiles.md) | 진화형 worker profile과 7/5/6-step 내부 흐름 |
+| 05 | [**L1 Sentinel**](./design/05-l1-sentinel-quality.md) | 품질/워크플로 게이트, 2-tier 비용 제어, 4-level verifier |
+| 06 | [**Cross-Layer Workflows**](./design/06-cross-layer-workflows.md) | Phase 0, 4-step cycle, Compound, Phase 8, Ralph loop |
+| 07 | [**Runtime Inventory**](./design/07-runtime-inventory.md) | 파일 구조, PROJECT_PROFILE, CONVENTIONS, STATE, 사용자 명령 |
+| 08 | [**Implementation Roadmap**](./design/08-implementation-roadmap.md) | OpenCode 매핑, 구현 순서, v0.6 기본 결정, 열린 사항 |
 
 ---
 
@@ -79,7 +79,7 @@
 - [`application-plan.md`](./application-plan.md) (v0.3) — 위 4개 서베이의 패턴을 본 설계에 어떻게 매핑할지. S/A/B-tier 우선순위 + 적용 status + 구현 페이징 로드맵. **S-tier 13개 전부 적용 완료**.
 
 ### 변경 이력
-- [`CHANGELOG.md`](./CHANGELOG.md) — v0.1 ~ v0.5.3 모든 버전 변경 요약 + 결정 사항 누적 (51건).
+- [`CHANGELOG.md`](./CHANGELOG.md) — v0.1 ~ v0.5.4 모든 버전 변경 요약 + 결정 사항 누적 (51건).
 
 ---
 
@@ -110,7 +110,7 @@
 # Vision 달성 → emit <promise>DONE</promise>
 ```
 
-상세 명령은 [`design/07-inventory.md`](./design/07-inventory.md) §7.4 참조.
+상세 명령은 [`design/07-runtime-inventory.md`](./design/07-runtime-inventory.md) §7.6 참조.
 
 ---
 
@@ -125,4 +125,4 @@
 | P15 DoD mandatory | `dod_required` | 측정 가능한 DoD 없이 milestone 생성/완료 불가 |
 | P16 Flexibility traceability | `flexibility_traceability` | 변경 시 영향 backlog 재정렬 + CONTEXT.md 로그 |
 
-(전체 룰: [`design/05-sentinel.md`](./design/05-sentinel.md))
+(전체 룰: [`design/05-l1-sentinel-quality.md`](./design/05-l1-sentinel-quality.md))
