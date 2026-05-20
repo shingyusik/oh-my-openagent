@@ -1,6 +1,6 @@
 # 07. 파일·디렉토리 인벤토리 + 사용자 명령
 
-> 본 하네스가 실제로 디스크에 남기는 모든 산출물 + 사용자가 Maestro에 보내는 모든 명령.
+> 본 하네스가 실제로 디스크에 남기는 모든 산출물 + 사용자가 Maestro Core에 보내는 모든 명령.
 
 ---
 
@@ -11,27 +11,33 @@ project/
 ├─ .git/
 ├─ .opencode/                          ← 하네스 정의 (git commit)
 │   ├─ oh-my-openagent.jsonc           ← 카테고리/에이전트 오버라이드 + 모드 기본값
-│   ├─ agents/                          ← 마크다운 에이전트 13개
-│   │   ├─ maestro.md                   L0 (단일 사용자 창구 + PM)
+│   ├─ agents/                          ← 코어 에이전트 + seed worker profiles
+│   │   ├─ maestro.md                   L0 (단일 사용자 창구 + 최종 결정권자)
+│   │   ├─ board-clerk.md               L0-private PM 원장 CRUD
+│   │   ├─ milestone-planner.md         L0-private Refinement/Planning proposal
+│   │   ├─ spec-writer.md               L0-private Task Spec 작성
+│   │   ├─ report-editor.md             L0-private 사용자용 report summary
+│   │   ├─ context-librarian.md         L0-private board/lessons 검색 요약
 │   │   ├─ foreman.md                   L1
 │   │   ├─ sentinel.md                  L1
-│   │   ├─ strategist.md                L2 기획
-│   │   ├─ designer.md                  L2 디자인
-│   │   ├─ frontend.md                  L2
-│   │   ├─ backend.md                   L2
-│   │   ├─ db-architect.md              L2
-│   │   ├─ security.md                  L2
-│   │   ├─ devops.md                    L2
-│   │   ├─ qa.md                        L2
-│   │   ├─ tech-writer.md               L2 (lessons 작성 Lead)
-│   │   └─ agent-architect.md           L2 (메타, 진화 사이클)
+│   │   ├─ agent-architect.md           L2 (메타, 진화 사이클)
+│   │   └─ worker-profiles/             프로젝트별 활성 worker profile
+│   │       ├─ planning.md              seed
+│   │       ├─ design.md                seed
+│   │       ├─ implementation.md        seed
+│   │       ├─ data.md                  seed
+│   │       ├─ security.md              seed
+│   │       ├─ quality.md               seed
+│   │       ├─ ops.md                   seed
+│   │       └─ documentation.md         seed
 │   ├─ skills/
 │   │   ├─ sentinel-rules/SKILL.md      Sentinel 룰셋 + 정적 도구 호출 레시피
-│   │   ├─ pm-board/SKILL.md            ★ 6엔티티 CRUD + 4-step + DoD 인터뷰
+│   │   ├─ pm-board/SKILL.md            ★ Board Clerk용 6엔티티 CRUD + 4-step 상태 전이
+│   │   ├─ pm-delegation/SKILL.md       Maestro Core ↔ private PM sub-agent schema
 │   │   ├─ worktree-orchestrator/SKILL.md
 │   │   ├─ dag-builder/SKILL.md
-│   │   ├─ saas-stack/SKILL.md          스택 컨벤션 (TS/Tailwind/shadcn/Python/Supabase/CF/PocketBase)
-│   │   ├─ monorepo-layout/SKILL.md     모노레포 구조 강제
+│   │   ├─ project-profile/SKILL.md     프로젝트 스택/구조/워커 프로필 기록
+│   │   ├─ convention-registry/SKILL.md 코드 컨벤션/관리 규칙 registry
 │   │   ├─ run-mode/SKILL.md            모드 동작
 │   │   ├─ tdd-discipline/SKILL.md      RED→GREEN→REFACTOR + 도구별 명령
 │   │   ├─ compound-cycle/SKILL.md      3-tier compound + fingerprint-merge
@@ -67,6 +73,8 @@ project/
 │   ├─ goal.md
 │   ├─ ETHOS.md                      ← P1~P16 본문화, 모든 워커 preamble
 │   ├─ STATE.md                      ← O_EXCL lock
+│   ├─ PROJECT_PROFILE.md            ← 프로젝트 타입/스택/레이아웃/worker profile
+│   ├─ CONVENTIONS.md                ← 코드 컨벤션 + 관리 규칙 registry
 │   ├─ PROJECT.md / REQUIREMENTS.md / ROADMAP.md / CONTEXT.md
 │   ├─ prd.md / design-spec.md
 │   ├─ progress.jsonl                ← append-only
@@ -87,59 +95,58 @@ project/
 ├─ .worktrees/                        ← 병렬 작업장 (gitignore)
 │   └─ <role>-<T-id>-<U-id>/
 │
-└─ <SaaS 프로젝트 모노레포 본체>
-    ├─ apps/web/                     ← Next.js (TS, Tailwind, shadcn)
-    ├─ apps/workers/                 ← Cloudflare Workers (edge runtime)
-    ├─ apps/pyservices/              ← Python 서비스 (FastAPI 등)
-    ├─ packages/ui/                  ← shadcn 컴포넌트 eject 위치
-    ├─ packages/db/                  ← Supabase 마이그레이션 + 타입
-    ├─ packages/shared/              ← 공유 타입/유틸 (TS only)
-    ├─ packages/py-shared/           ← Python 공유 (pydantic 모델 등)
-    ├─ infra/cloudflare/             ← wrangler.toml, IaC
-    ├─ infra/supabase/               ← config + migrations
-    ├─ tests/e2e/                    ← Playwright 통합 테스트
-    └─ docs/                         ← Tech Writer 산출물
+└─ <프로젝트 본체>
+    └─ 구조는 `.harness/PROJECT_PROFILE.md`가 선언한 layout을 따른다
 ```
 
 ---
 
-## 7.2 타겟 스택
+## 7.2 프로젝트 프로필
 
-| 레이어 | 기술 | 비고 |
-|---|---|---|
-| Lang (FE) | **TypeScript** (strict) | tsc strict, no implicit any |
-| Lang (BE/Tools) | **Python** | ruff + black + mypy |
-| UI 스타일 | **Tailwind CSS** | shadcn 토큰 시스템과 정렬 |
-| UI 컴포넌트 | **shadcn/ui** | 컴포넌트는 `packages/ui/`에 eject |
-| BaaS | **Supabase** | auth, realtime, storage, RLS |
-| DB (primary) | **Postgres** (Supabase 호스팅) | RLS 정책 필수 |
-| DB (보조) | **PocketBase** | local-first / 임베디드 시나리오 |
-| 인프라 | **Cloudflare** | Workers (edge API), Pages (FE), R2 (asset), D1 (옵션), KV |
+하네스 코어는 특정 스택, 레포 구조, 도메인을 강제하지 않는다. `/start`의 Phase 0에서 Maestro Core가 사용자의 목표와 기존 repo를 읽고 `.harness/PROJECT_PROFILE.md`를 만든다.
 
-`saas-stack` skill이 각 항목의 베스트 프랙티스 + 흔한 함정을 룰화. 예:
-- "Cloudflare Workers에서 `fs`, `crypto.randomBytes`, 동기 fs API 사용 금지"
-- "Supabase 테이블 추가 시 RLS 정책 동시 작성 필수"
-- "shadcn 컴포넌트는 `packages/ui/`에 eject 후 수정, 직접 인라인 수정 금지"
+```yaml
+project_profile:
+  project_type: library | app | cli | service | research | mixed
+  languages: []
+  runtimes: []
+  package_managers: []
+  test_commands: []
+  build_commands: []
+  repository_layout:
+    source_roots: []
+    test_roots: []
+    docs_roots: []
+  active_worker_profiles:
+    - implementation
+    - quality
+    - documentation
+  architecture_rules: []
+  code_conventions: []
+  management_rules: []
+```
+
+프로필은 시작점일 뿐이다. 사용 중 반복되는 실패, Sentinel finding, lessons가 쌓이면 Agent-Architect가 profile 변경 proposal을 낸다.
 
 ---
 
-## 7.3 모노레포 의존 방향 룰
+## 7.3 진화형 컨벤션과 관리 규칙
 
-- `apps/*` → `packages/*` ✅
-- `packages/*` → `packages/*` ✅ (순환 금지)
-- `packages/*` → `apps/*` ❌
-- TS 코드 → Python 코드 ❌ (반대도)
-- 통신은 HTTP/RPC만
+`convention-registry`는 다음 세 층을 구분한다:
 
-**모노레포 도구**: pnpm workspaces + turborepo (TS 측), uv (Python 측). 첫 부트스트랩에서 확정.
+| 층 | 예 | 변경 방식 |
+|---|---|---|
+| **Core rules** | TDD, Backlog SSOT, DoD, 4-step cycle, Maestro 단일 surface | 변경 불가 또는 사용자 명시 승인 |
+| **Project rules** | repo layout, dependency direction, naming, formatter, test pyramid | Phase 0에서 시작, Phase 8 proposal로 진화 |
+| **Worker rules** | 특정 worker가 보는 파일, verify command, review lens | worker profile별로 진화 |
 
-→ Sentinel `architecture_violation`이 이 룰을 강제.
+Sentinel은 Core rules를 항상 강제하고, Project/Worker rules는 `.harness/PROJECT_PROFILE.md`와 `.harness/CONVENTIONS.md`에서 읽어 적용한다. 특정 스택 규칙은 하네스에 하드코딩하지 않는다.
 
 ---
 
 ## 7.4 사용자 명령 인터페이스
 
-> 사용자는 Maestro와만 대화. 모든 명령은 Maestro가 해석·실행.
+> 사용자는 Maestro Core와만 대화. 모든 명령은 Maestro Core가 해석하고, PM 원장 변경은 private PM sub-agent가 구조화 요청으로 실행한다.
 
 ### 7.4.1 진입 & 기본
 
@@ -237,7 +244,7 @@ project/
 /lessons [--category=bugs|arch|...] [--cycle=N] [--high-leverage]
 /lessons show <L-id>
 
-/tdd-exception <task-id> "<사유>"          # TDD 예외 등록 (Maestro 승인 필요)
+/tdd-exception <task-id> "<사유>"          # TDD 예외 등록 (Maestro Core 승인 필요)
 
 /evolve                                   # Phase 8 수동 트리거
 /proposals                                # _pending 목록 + 요약
@@ -253,7 +260,7 @@ project/
 /revise "<수정 사항>"                       # Vision/Roadmap/Milestone 영향 큰 변경
 ```
 
-→ Maestro가 영향 범위 분석 → 영향 backlog item 자동 재정렬 → 변경 이력 CONTEXT.md append → 사용자 컨펌.
+→ Milestone Planner가 영향 범위 분석 → Board Clerk이 영향 backlog item 자동 재정렬 초안 + 변경 이력 CONTEXT.md append 초안 작성 → Maestro Core 사용자 컨펌.
 
 ---
 
@@ -263,8 +270,9 @@ project/
 
 - Foreman의 worktree spawn / merge
 - Sentinel 룰 실행
-- L2 워커의 `task()` 호출
+- private PM sub-agent의 board patch / planning proposal / report summary 생성
+- worker profile의 `task()` 호출
 - Agent-Architect의 proposal 작성
 - compound emit
 
-이 명령들의 결과는 항상 Maestro를 거쳐 가공된 메시지로만 surface.
+이 명령들의 결과는 항상 Maestro Core를 거쳐 가공된 메시지로만 surface.

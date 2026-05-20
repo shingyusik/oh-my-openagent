@@ -1,4 +1,4 @@
-# 외부 하네스 패턴 — 내 SaaS 하네스 적용 계획
+# 외부 하네스 패턴 — 내 코딩 하네스 적용 계획
 
 > 상태: **v0.3** (2026-05-20)
 > Companion: [`surveys/superpowers.md`](./surveys/superpowers.md) · [`surveys/compound-engineering.md`](./surveys/compound-engineering.md) · [`surveys/gstack.md`](./surveys/gstack.md) · [`surveys/get-shit-done.md`](./surveys/get-shit-done.md)
@@ -42,7 +42,7 @@
 
 | # | 패턴 | 출처 | Status | design 위치 |
 |---|---|---|---|---|
-| A1 | **Plan placeholder 금지 validator** | superpowers | ✅ | `05-sentinel.md` §5.3 `plan_placeholder` 룰 + `02-agents.md` Strategist 자기 출력 검증 책무 |
+| A1 | **Plan placeholder 금지 validator** | superpowers | ✅ | `05-sentinel.md` §5.3 `plan_placeholder` 룰 + `02-agents.md` Planning Worker 자기 출력 검증 책무 |
 | A2 | **3-failure 아키텍처 escalation** | superpowers | ✅ | `04-workflow.md` §4.7.3 Ralph 루프 circuit-breaker |
 | A3 | **Brainstorming 9-step 게이트** | superpowers | ✅ | `04-workflow.md` §4.2 Phase 0 인터뷰 통합 |
 | A4 | **Adaptive specialist gating** (hit-rate 0 → auto-disable) | gstack | ✅ | `05-sentinel.md` §5.7 |
@@ -77,7 +77,7 @@
 | superpowers | `finishing-a-development-branch` 4-옵션 | 개인 dev 플로우, 자동 merge에 부적합 |
 | superpowers | `dispatching-parallel-agents` skill | Foreman 책임 |
 | superpowers | SessionStart 폴리글랏 hook | 워커별 prompt에 직접 inject |
-| superpowers | TDD-as-absolute-law (global) | Designer/Tech-Writer/Strategist 제외 후 선택 적용 |
+| superpowers | TDD-as-absolute-law (global) | Design/Documentation/Planning Worker 제외 후 선택 적용 |
 | compound | 51 agent 평면 구조 | 13 워커 + 내부 lens로 통합 |
 | compound | Rails 전용 reviewer (DHH/Kieran-rails/swift-ios) | 스택 불일치 |
 | compound | 멀티 플랫폼 변환기 (.cursor-plugin/.codex-plugin) | OmO + Claude Code만 사용 |
@@ -85,17 +85,17 @@
 | compound | `ce-proof` | upstream bug |
 | compound | Every Inc 전용 (figma/demo-reel/riffrec) | 비범용 |
 | gstack | `browse` 데몬 (58MB binary, mac-arm64) | Playwright MCP 사용 |
-| gstack | GBrain (Supabase telemetry) | 자체 메모리 레이어 구축 (`.harness/lessons/`) |
+| gstack | GBrain (telemetry-backed memory) | 자체 메모리 레이어 구축 (`.harness/lessons/`) |
 | gstack | `/codex` cross-model | OpenAI 의존, Sentinel로 대체 |
 | gstack | `conductor.json` 통합 | 별도 paid 도구 |
 | gstack | Garry 개인 톤 (`/office-hours`, `/retro`) | 톤 강함 |
-| gstack | `bin/` 글로벌 install | 모노레포 workspace로 통합 |
+| gstack | `bin/` 글로벌 install | 프로젝트 workspace로 통합 |
 | GSD | 67개 평면 command | Maestro entry로 통합 (P12) |
 | GSD | 15-runtime 변환 레이어 | OmO 1 런타임만 |
 | GSD | "autonomous" 1회 직진 | Ralph 4모드가 더 풍부 |
 | GSD | `gsd-sdk query` CLI | in-process TypeScript 호출 |
 | GSD | 4개로 쪼개진 doc agent | Tech-Writer 1개로 통합 |
-| GSD | `nyquist/eval/user-profiler/eval-planner` | niche, Strategist+QA로 흡수 |
+| GSD | `nyquist/eval/user-profiler/eval-planner` | niche, Planning+Quality Worker로 흡수 |
 
 ---
 
@@ -106,7 +106,7 @@
 | superpowers "1 task = fresh subagent" vs compound "사이클별 outputs 연속성" | **둘 다 채택**: 워커 *내부*는 fresh subagent (S2), 사이클 *간*은 `.harness/lessons/` + `STATE.md`로 연속성 | 격리와 학습은 다른 layer | `02-agents.md` §2.3 + `04-workflow.md` §4.5 |
 | GSD 67 command vs Maestro entry | **Maestro 유지** (P12) | 단일 entry로 사용자 인지 부담 ↓ | `01-principles.md` P12 |
 | compound 51 agent vs 13 워커 | **13 워커 유지**, persona는 워커 내부 lens로 흡수 (B2) | 평면 51개는 유지보수 부담 | `02-agents.md` §2.2 |
-| superpowers TDD-absolute-law vs Designer/Tech-Writer | **선택 적용**: 코드 워커만 ✅, prose 워커 ❌, Agent-Architect ⚙️ skill-TDD | 산출물에 맞는 baseline-fail 검증 | `02-agents.md` §2.2 TDD 컬럼 |
+| superpowers TDD-absolute-law vs prose/documentation workers | **선택 적용**: 코드 워커만 ✅, prose 워커 ❌, Agent-Architect ⚙️ skill-TDD | 산출물에 맞는 baseline-fail 검증 | `02-agents.md` §2.2 TDD 컬럼 |
 | GSD "discuss→plan→execute→verify 순차" vs worktree 병렬 | **둘 다 채택**: phase는 직선 통과 (P14), 같은 phase 내 독립 노드는 worktree 병렬 | DAG가 의존성 표현 | `04-workflow.md` §4.3 |
 | compound STRATEGY.md (영구 product anchor) vs Vision (V-*) entity | **Vision entity 채택, STRATEGY.md 미채택** | 본 Vision이 더 작은 단위 | `03-pm-model.md` §3.2 |
 | gstack adaptive gating의 자동 비활성 vs Phase 8 deprecate | **레이어 분리**: gating(Sentinel 룰 내부) vs deprecation(Phase 8 메타) | 같은 발상 다른 시간축 | `05-sentinel.md` §5.7 + `04-workflow.md` §4.6.5 |
@@ -198,9 +198,9 @@ design 단계가 v0.5.1으로 마무리되었으므로 이제 **구현 페이즈
 | **impl v0.3 (workers)** | 각 L2 에이전트 마크다운 초안 + 워커 7/5/6-step prompt | `.opencode/agents/*.md` 12개 |
 | **impl v0.4 (workflow skills)** | `tdd-discipline` + `compound-cycle` + `harness-evolution` + `worktree-orchestrator` + `dag-builder` skill | `.opencode/skills/*/SKILL.md` |
 | **impl v0.5 (commands)** | `/board`, `/roadmap`, `/milestone`, `/task`, `/backlog`, `/dod`, `/next`, `/refinement`, `/planning`, `/review`, `/evolve` 등 | `.opencode/command/*.md` |
-| **impl v0.6 (stack skills)** | `saas-stack` + `monorepo-layout` + `run-mode` + `lesson-format` + `proposal-format` | `.opencode/skills/*/SKILL.md` |
+| **impl v0.6 (profile skills)** | `project-profile` + `convention-registry` + `run-mode` + `lesson-format` + `proposal-format` | `.opencode/skills/*/SKILL.md` |
 | **impl v0.7 (hooks)** | `pre-commit-tdd-check`, `post-commit-compound-emit`, `phase-boundary-*`, `worktree-guard`, `pre-tool-backlog-singularity` | `.opencode/hooks/*.sh` |
-| **impl v0.8 (e2e dryrun)** | URL 단축 SaaS로 end-to-end dry-run | 검증: 사용자가 Maestro와만 대화 / 4-step 직선 통과 / Sentinel 룰 동작 / Phase 8 첫 proposal 생성 |
+| **impl v0.8 (e2e dryrun)** | 작은 일반 코딩 프로젝트로 end-to-end dry-run | 검증: 사용자가 Maestro Core와만 대화 / 4-step 직선 통과 / Sentinel 룰 동작 / Phase 8 첫 proposal 생성 |
 | **impl v0.9 (B-tier)** | B1 host adapter / B2 persona lens / A10 "Use when ..." 컨벤션 / A12 lesson fingerprint 알고리즘 | 옵션 |
 
 각 impl 페이즈는 **독립 worktree에서 병렬 가능** — 본 하네스를 자기 자신에게 적용해 자기를 개발.
@@ -218,4 +218,4 @@ design 단계가 v0.5.1으로 마무리되었으므로 이제 **구현 페이즈
 5. **Task Spec / Task Report 스키마 동결** — JSON Schema 또는 zod로 검증
 6. **Sentinel 룰셋 → 정적 도구 매핑 구체화** — 각 룰을 실제 명령으로 (`05-sentinel.md` §5.5 표를 실행 명령으로)
 7. **Foreman의 worktree prohibition hook 의사코드** (`design/06-execution-infra.md` §6.2.3 실행 코드)
-8. **URL 단축 SaaS로 end-to-end dry-run** → 회고 → 다음 버전 튜닝
+8. **작은 일반 코딩 프로젝트로 end-to-end dry-run** → 회고 → 다음 버전 튜닝

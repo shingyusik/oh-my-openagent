@@ -5,6 +5,68 @@
 
 ---
 
+## v0.5.3 (2026-05-20) - 일반 코딩 하네스화
+
+### 변경 요약
+- **SaaS 전용 프레이밍 제거**: 현재 설계 제목과 빠른 시작을 "코딩 하네스" / "새 프로젝트" 기준으로 변경.
+- **코어/프로젝트 레이어 분리**: TDD, Maestro Core 단일 surface, Backlog SSOT, DoD, 4-step cycle, Sentinel, Compound는 고정 코어로 유지.
+- **Worker profile 진화 모델 도입**: Frontend/Backend/DB/DevOps 같은 고정 직책 대신 Planning/Design/Implementation/Data/Security/Quality/Ops/Documentation seed profile을 두고 프로젝트별로 채택·분리·병합·폐기.
+- **스택 하드코딩 제거**: `saas-stack`, `monorepo-layout`, Supabase/Cloudflare/Tailwind/shadcn 등 고정 스택 규칙을 `project-profile` + `convention-registry`로 대체.
+- **Sentinel 프로필 기반화**: 정적 도구와 architecture/convention rule을 `.harness/PROJECT_PROFILE.md`와 `.harness/CONVENTIONS.md`에서 읽어 적용.
+
+### 신규 결정 사항
+
+| # | 항목 | 결정 |
+|---|---|---|
+| 47 | 일반 코딩 하네스 | 특정 제품 유형(SaaS 등)이나 스택을 기본값으로 삼지 않는다 |
+| 48 | Project profile | Phase 0에서 project_type, languages, runtimes, commands, layout, worker profiles를 기록 |
+| 49 | Convention registry | 코드 컨벤션과 관리 규칙은 core/project/worker rule로 분리 |
+| 50 | Worker profile evolution | worker agents는 seed에서 시작하고 lessons/proposals로 진화한다 |
+| 51 | Sentinel profile slots | lint/typecheck/test/security/dependency 도구는 profile slot으로 선언한다 |
+
+### 영향 받은 파일
+- `my-harness-design.md` - 제목과 빠른 시작에서 SaaS 제거
+- `design/01-principles.md` - P2를 project-adaptive agents로 재정의
+- `design/02-agents.md` - 고정 L2 직책을 진화형 worker profiles로 전환
+- `design/05-sentinel.md` - 스택 종속 룰과 도구 매핑을 프로젝트 프로필 기반으로 전환
+- `design/07-inventory.md` - 고정 SaaS/모노레포 스택 대신 PROJECT_PROFILE/CONVENTIONS 추가
+- `design/08-implementation.md` - `project-profile`, `convention-registry`, 일반 코딩 하네스 기본 결정 추가
+
+---
+
+## v0.5.2 (2026-05-20) - Maestro 책임 분해
+
+### 변경 요약
+- **Maestro 재정의**: 단일 사용자 창구 + PM 엔티티 매니저에서 **단일 사용자 창구 + 최종 결정권자**로 축소.
+- **Private PM sub-agent 5종 추가**: Board Clerk, Milestone Planner, Spec Writer, Report Editor, Context Librarian.
+- **PM 원장 쓰기 권한 분리**: `board/*` 직접 쓰기는 Board Clerk 전담. Maestro Core는 승인/거부와 사용자 surface만 담당.
+- **컨텍스트 압축 기본값 확정**: Maestro Core는 `_index.md`, active item, 최근 summary만 상시 보유하고 본문은 on-demand read.
+- **구현 순서 조정**: Maestro prompt를 얇게 만들고 `pm-delegation` skill과 private PM prompt를 선행 작성하도록 변경.
+
+### 신규 결정 사항
+
+| # | 항목 | 결정 |
+|---|---|---|
+| 40 | Maestro Core 책임 | 사용자 대화, HITL 질문, 실행 승인, 최종 판단, sub-agent 산출물 surface |
+| 41 | Board Clerk | Vision/Roadmap/Milestone/Backlog/Task CRUD와 `_index.md` 정합성 전담 |
+| 42 | Milestone Planner | Refinement/Planning proposal, 우선순위, 의존성, DoD 초안 담당 |
+| 43 | Spec Writer | selected backlog/task를 Foreman Task Spec으로 변환 |
+| 44 | Report Editor | Foreman/Sentinel raw report를 사용자용 summary로 변환 |
+| 45 | Context Librarian | board 본문, lessons, prior decisions를 on-demand 검색 요약 |
+| 46 | PM delegation schema | private PM sub-agent 출력은 schema 응답만 허용. 자유 형식 긴 보고서 금지 |
+
+### 영향 받은 파일
+- `my-harness-design.md` - 한 줄 요약과 계층도에서 Maestro Core + private PM sub-agent 구조 반영
+- `design/01-principles.md` - P12를 단일 surface + decision owner로 재정의
+- `design/02-agents.md` - 에이전트 수 18 + helpers로 갱신, private PM sub-agent roster 추가
+- `design/03-pm-model.md` - 쓰기 권한, 상태 전이, Task Spec/Report 인터페이스를 위임 구조로 갱신
+- `design/04-workflow.md` - Phase 0과 4-step cycle을 Maestro Core + private PM sub-agent 흐름으로 갱신
+- `design/06-execution-infra.md` - 4-level context isolation과 Maestro Core 컨텍스트 상한 추가
+- `design/07-inventory.md` - agent/skill inventory에 private PM sub-agent와 `pm-delegation` 추가
+- `design/08-implementation.md` - 구현 매핑, 우선순위, v0.6 기본 결정 추가
+
+---
+
 ## application-plan v0.3 (2026-05-20) — stale 정리 + split 구조 반영
 
 > 본 항목은 `application-plan.md` 자체의 변경 이력. design 본체와는 분리.

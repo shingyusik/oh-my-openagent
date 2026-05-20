@@ -1,6 +1,6 @@
-# 03. PM 데이터 모델 + Maestro ↔ Foreman 인터페이스
+# 03. PM 데이터 모델 + Maestro Core ↔ PM Sub-agents ↔ Foreman 인터페이스
 
-> Maestro가 관리하는 6-tier 엔티티 모델, 상태 전이, 우선순위, 그리고 Foreman에 dispatch할 때의 Spec/Report 표준 스키마.
+> Maestro Core가 최종 승인하고 private PM sub-agent가 관리하는 6-tier 엔티티 모델, 상태 전이, 우선순위, 그리고 Foreman에 dispatch할 때의 Spec/Report 표준 스키마.
 
 ---
 
@@ -204,7 +204,7 @@ tags: [auth, oauth, supabase]
 - AC-2: ...
 
 ## Refinement Notes
-<우선순위·범위·트레이드오프 메모 — Refinement 단계에서 Maestro 작성>
+<우선순위·범위·트레이드오프 메모 (Refinement 단계에서 Milestone Planner 작성, Maestro Core 승인)>
 ```
 
 ### Task (`T-101.md`)
@@ -215,10 +215,10 @@ type: task
 status: dispatched
 backlog_item: B-042
 estimated_effort: medium
-worker_hint: backend            # Foreman이 무시 가능
+worker_hint: implementation     # Foreman이 무시 가능
 blocked_by: [T-099]
 blocks: [T-105]
-worktree: backend-T-101-U
+worktree: implementation-T-101-U
 spec_file: phases/<N>/specs/T-101.spec.md
 report_file: phases/<N>/reports/T-101.report.md
 created: 2026-05-25
@@ -227,7 +227,7 @@ updated: 2026-05-26
 
 # Task: Implement OAuth provider abstraction layer
 
-(본문은 Maestro가 작성, Foreman에 dispatch될 spec의 source)
+(본문은 Spec Writer가 작성, Maestro Core 승인 후 Foreman에 dispatch될 spec의 source)
 ```
 
 ---
@@ -254,13 +254,32 @@ updated: 2026-05-26
 
 | 에이전트 | 쓰기 권한 |
 |---|---|
-| Maestro | `board/*` 전체 |
+| Maestro Core | 직접 쓰기 없음. 사용자 승인, HITL 결정, patch request 승인/거부만 수행 |
+| Board Clerk | `board/*` 전체. 단, Maestro Core가 승인한 patch request 또는 Sentinel/L2 자동 생성 이벤트만 반영 |
+| Milestone Planner | 쓰기 없음. Refinement/Planning proposal만 생성 |
+| Spec Writer | 쓰기 없음. Foreman Task Spec 구조화 산출물만 생성 |
+| Report Editor | 쓰기 없음. 사용자 surface용 summary만 생성 |
+| Context Librarian | 쓰기 없음. 검색 요약만 생성 |
 | Foreman | `tasks/T-*.md` status 필드만 (`dispatched`→`in_progress`→`done` 등) |
 | Sentinel | `backlog/B-*.md` 자동 생성 (type=bug, severity=high BLOCK 시) |
 | L2 워커 | `backlog/B-*.md` 자동 생성 (workflow 중 발견 — `discovered_during` 자동), `tasks/T-*.md` status 필드 |
-| Agent-Architect | `proposals/*` (board에는 직접 안 씀; 채택 시 Maestro 경유) |
+| Agent-Architect | `proposals/*` (board에는 직접 안 씀; 채택 시 Maestro Core 경유) |
 
-워커가 만든 backlog item은 `status: idea`로 시작. Maestro Refinement에서 triage.
+워커가 만든 backlog item은 `status: idea`로 시작. Milestone Planner가 triage proposal을 만들고, Maestro Core 승인 후 Board Clerk이 상태를 반영한다.
+
+### 3.7.1 Private PM sub-agent 위임 계약
+
+Maestro Core는 PM 노동을 직접 수행하지 않는다. 다음 요청/응답 계약으로만 위임한다:
+
+| 요청 | 담당 | 입력 | 출력 | 반영 조건 |
+|---|---|---|---|---|
+| `board_patch_request` | Board Clerk | 승인된 변경 의도 + 대상 entity id | applied changes + integrity check | Maestro Core 승인 필요 |
+| `refinement_proposal` | Milestone Planner | backlog `_index.md` + relevant B-* | priority changes + merge candidates | Maestro Core 승인 필요 |
+| `task_spec_draft` | Spec Writer | selected B-* / T-* + active M-* | Task Spec markdown | Maestro Core 승인 후 Foreman dispatch |
+| `report_summary` | Report Editor | Foreman Task Report + Sentinel summary | 사용자용 summary + asks | Maestro Core 검토 후 surface |
+| `context_brief` | Context Librarian | query + allowed paths | 500자 내외 brief + source ids | read-only |
+
+모든 응답은 schema를 가져야 하며 자유 형식 긴 보고서는 금지한다. Maestro Core는 `_index.md`, active milestone/task, 최근 summary만 상시 보유하고, 본문은 Context Librarian을 통해 on-demand로 읽는다.
 
 ---
 
@@ -269,17 +288,21 @@ updated: 2026-05-26
 ```
 [Refinement 단계]
   - 외부 입력 / 워커 발견 → backlog/B-* 생성 (status: idea)
-  - Maestro가 priority 부여 → status: triaged
-  - 우선순위 정렬, _index.md 갱신
+  - Milestone Planner가 priority proposal 생성
+  - Maestro Core 승인 → Board Clerk이 status: triaged 반영
+  - Board Clerk이 우선순위 정렬, _index.md 갱신
 
 [Planning 단계]
-  - 신규 milestone 생성: status: proposed → DoD 완성 → defined → planned
+  - Milestone Planner가 신규 milestone proposal 생성
+  - Maestro Core 승인 → Board Clerk이 status: proposed → DoD 완성 → defined → planned 반영
   - Triaged backlog items 중에서 selected_backlog_items에 link
   - 해당 item.status: triaged → selected
-  - Task 분해 (필요 시): backlog item → tasks/T-*.md 생성
+  - Spec Writer가 task 분해 초안 생성
+  - Maestro Core 승인 → Board Clerk이 backlog item → tasks/T-*.md 생성
 
 [Execution 단계]
-  - Maestro가 ready 상태 T-*를 골라 Foreman dispatch
+  - Maestro Core가 ready 상태 T-*를 골라 Spec Writer에 Task Spec 초안 요청
+  - Maestro Core 승인 후 Foreman dispatch
   - T-*.status: dispatched → in_progress → done
   - 부모 backlog item의 task가 모두 done → B-*.status: done
 
@@ -293,11 +316,11 @@ updated: 2026-05-26
 
 ---
 
-## 3.9 Maestro ↔ Foreman 인터페이스
+## 3.9 Maestro Core ↔ Spec Writer ↔ Foreman 인터페이스
 
-Maestro가 Foreman에 일을 시킬 때 표준 **Task Spec**을 넘긴다. Foreman은 작업 후 표준 **Task Report**를 돌려준다.
+Spec Writer가 표준 **Task Spec** 초안을 만들고 Maestro Core가 승인한 뒤 Foreman에 넘긴다. Foreman은 작업 후 표준 **Task Report**를 돌려주며, Report Editor가 사용자 surface용 summary를 만든다.
 
-### 3.9.1 Task Spec (Maestro → Foreman)
+### 3.9.1 Task Spec (Spec Writer → Maestro Core → Foreman)
 
 `task()` 호출 시 prompt에 다음 마크다운을 포함:
 
@@ -306,7 +329,7 @@ Maestro가 Foreman에 일을 시킬 때 표준 **Task Spec**을 넘긴다. Forem
 
 ## Identity
 - id: T-101
-- backlog_item: B-042 (OAuth 로그인)
+- backlog_item: B-042 (데이터 가져오기 파이프라인)
 - priority: P1
 - milestone: M-003
 - mode: gated      ← auto/gated/plan-only/dry-run
@@ -319,9 +342,9 @@ Maestro가 Foreman에 일을 시킬 때 표준 **Task Spec**을 넘긴다. Forem
 - AC-2: ...
 
 ## Constraints
-- 스택: Supabase Auth만 사용 (Custom OAuth 금지)
-- 영향 모듈: apps/web/src/auth/, packages/db/migrations/
-- 절대 변경 금지: apps/workers/billing/
+- 프로젝트 프로필: `.harness/PROJECT_PROFILE.md` 준수
+- 영향 모듈: <profile.source_roots 중 관련 경로>
+- 절대 변경 금지: <task.plan.forbidden_paths>
 - TDD: required (예외 없음)
 
 ## Dependencies
@@ -329,30 +352,30 @@ Maestro가 Foreman에 일을 시킬 때 표준 **Task Spec**을 넘긴다. Forem
 - Blocks: T-105
 
 ## Suggested Worker Allocation
-- db-architect (스키마)
-- backend (auth API)
-- frontend (login UI)
-- security (위협 모델)
-- qa (e2e 1개 이상)
+- data (스키마/저장소)
+- implementation (핵심 로직)
+- security (입력/권한 검토, 필요 시)
+- quality (회귀 테스트)
+- documentation (사용자/운영 문서, 필요 시)
 
 ## Lessons to Consult
-- L-2026-04-10-002: Supabase RLS 패턴
-- L-2026-04-22-007: Cloudflare Workers OAuth 함정
+- L-2026-04-10-002: 프로젝트 데이터 경계 패턴
+- L-2026-04-22-007: 런타임 호환성 함정
 
 ## References
 - 관련 backlog item: B-042
-- 외부: <Supabase OAuth docs URL>
+- 외부: <관련 공식 문서 URL>
 
 ## Report Back
 - Format: 아래 Task Report 스키마
-- Time budget: <Maestro 추정치>
-- Escalate to Maestro if:
+- Time budget: <Spec Writer 추정치, Maestro Core 승인>
+- Escalate to Maestro Core if:
   - Sentinel BLOCK 3회 같은 룰
   - 새 backlog item이 P0 severity
   - 예상 effort 2배 초과
 ```
 
-### 3.9.2 Task Report (Foreman → Maestro)
+### 3.9.2 Task Report (Foreman → Report Editor → Maestro Core)
 
 Foreman의 task() 반환값:
 
@@ -378,7 +401,7 @@ Foreman의 task() 반환값:
 - B-099 (auto-created, type=bug): Refresh token expiry on CF cron
 
 ## Lessons Captured (this task)
-- L-2026-05-21-001 (architecture): Supabase Auth + CF edge runtime 호환 ...
+- L-2026-05-21-001 (architecture): 프로젝트 profile의 runtime 제약과 adapter 경계 ...
 
 ## Sentinel Summary
 - AUTO-FIXED: 12 findings
@@ -397,15 +420,15 @@ Foreman의 task() 반환값:
 - Tier 1 lessons emitted: 5
 - Tier 2 lessons folded into: L-2026-05-21-001
 
-## Suggested Next Actions (for Maestro to surface)
+## Suggested Next Actions (for Maestro Core to surface)
 - T-105 unblocked (depends on T-101 done)
 - B-099 should be triaged before M-003 close
 - Sentinel ASK 1건 — 사용자 컨펌 권장
 ```
 
-### 3.9.3 Maestro의 보고서 가공 (사용자 surface)
+### 3.9.3 Report Editor의 보고서 가공 (Maestro Core surface)
 
-Maestro는 raw report를 받아 사용자에게:
+Report Editor는 raw report를 받아 아래 형태의 사용자용 summary를 만들고, Maestro Core가 검토한 뒤 사용자에게 surface한다:
 
 ```markdown
 **T-101 (OAuth Provider 추상화) 완료**
@@ -430,7 +453,8 @@ Maestro는 raw report를 받아 사용자에게:
 
 ### 3.9.4 컨텍스트 격리 보장
 
-- Maestro 세션은 board/* + report 요약만 보유 (diff/코드/sentinel raw 출력 X)
+- Maestro Core 세션은 board `_index.md` + active item + report 요약만 보유 (diff/코드/sentinel raw 출력 X)
+- board 본문은 Context Librarian을 통해 on-demand read
 - Foreman은 task spec만 받음. 다른 task의 컨텍스트 X.
 - task() 분리로 각 호출이 fresh
-- 사용자 화면에는 항상 Maestro의 1차 가공된 메시지만 나옴
+- 사용자 화면에는 항상 Maestro Core의 1차 가공된 메시지만 나옴

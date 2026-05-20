@@ -66,45 +66,39 @@ sentinel_rules:
 
   # ==== P1: 아키텍처 위반 ====
   architecture_violation:                     # P1
-    - rule: "frontend imports backend internals (cross-app boundary)"
+    - rule: "declared layer boundary violation (PROJECT_PROFILE.architecture_rules 기준)"
       severity: block
-    - rule: "backend reads from frontend assets"
+    - rule: "forbidden dependency direction (CONVENTIONS.dependency_rules 기준)"
       severity: block
-    - rule: "domain layer imports infrastructure (Supabase client, fetch 등)"
+    - rule: "domain/core layer imports adapter/infrastructure directly when profile forbids it"
       severity: block
     - rule: "circular dependency between packages"
       severity: block
-    - rule: "raw SQL outside db package"
+    - rule: "data access outside declared data boundary"
       severity: block
     - rule: "auth check missing on protected route"
       severity: block
-    - rule: "shadcn 컴포넌트 직접 수정 (eject 없이 인라인 수정)"
-      severity: fix
-    - rule: "Tailwind 클래스 충돌 / 임의 magic value"
-      severity: fix
-    - rule: "Cloudflare Workers에서 node-only API 사용"
+    - rule: "runtime-incompatible API/dependency usage (PROJECT_PROFILE.runtimes 기준)"
       severity: block
-    - rule: "Supabase RLS 정책 누락 (테이블 추가 시)"
+    - rule: "security-sensitive resource added without matching policy/test"
       severity: block
-    - rule: "API 핸들러가 도메인 모델 직접 변형 (서비스 레이어 우회)"
-      severity: block
-    - rule: "monorepo 의존 방향 위반 (apps → packages 만 허용)"
+    - rule: "handler/entrypoint bypasses declared domain/service boundary"
       severity: block
 
   # ==== P1: 스코프 일탈 ====
   scope_creep:                                # P1
     - rule: "files changed not in task.plan.touched_files"
       severity: block
-    - rule: "현재 task의 role과 무관한 파일 수정 (예: backend worker가 frontend 수정)"
+    - rule: "현재 task의 worker profile과 무관한 파일 수정"
       severity: block
 
   # ==== P1: 컨벤션 ====
   conventions:                                # P1
-    - rule: "lint/format errors (eslint + prettier + ruff + black)"
+    - rule: "lint/format/typecheck errors (PROJECT_PROFILE.commands 기준)"
       severity: fix
     - rule: "naming convention violation (project AGENTS.md 규약 기준)"
       severity: fix
-    - rule: "타입 미정의 (any/unknown 남발, Python untyped)"
+    - rule: "타입/계약 미정의 또는 프로젝트 컨벤션 위반"
       severity: fix
     - rule: "magic number/string (3회 이상 반복)"
       severity: fix
@@ -238,7 +232,7 @@ sentinel_rules:
     - rule: "패키지 등급 [ASSUMED] (존재하나 신규/저트래픽)"
       severity: block
       action: "Maestro HITL gate 발동. 사용자 컨펌 후만 통과"
-    - rule: "Cloudflare Workers/Pages 환경에 node-only 의존성 추가"
+    - rule: "declared runtime과 호환되지 않는 의존성 추가"
       severity: block
   # 등급 판정 휴리스틱:
   #   [VERIFIED] - npm/pypi 존재 ≥6mo + ≥10k weekly downloads + active repo + 이름 정확
@@ -260,7 +254,7 @@ sentinel_rules:
       severity: block
 
   # ==== P0: Plan Placeholder Validator ====
-  # Strategist/Maestro plan 산출물의 모호 표현 차단
+  # Planning Worker/Maestro Core plan 산출물의 모호 표현 차단
   plan_placeholder:                           # P0
     - rule: "plan 본문에 'TBD', 'TODO', 'XXX', '나중에', '추후', 'somehow' 표현"
       severity: block
@@ -283,32 +277,34 @@ Sentinel은 매 commit마다 돌므로 1차/2차로 분리:
 
 ### 1차 패스 (cheap, 매 commit)
 - 모델: `quick` 카테고리 (gpt-5.4-mini)
-- 정적 도구 위주: ts-prune, knip, eslint, ruff, ts-unused-exports, depcruise
+- 정적 도구 위주: `.harness/PROJECT_PROFILE.md`에 등록된 lint/typecheck/dead-code/dependency 도구
 - P0 룰 + 단순 패턴 매칭
 - 빠른 결과 (수 초 이내)
 
 ### 2차 패스 (expensive)
 - **트리거**: 1차에서 의심 발견 시 + 머지 게이트 + DoD verify
 - 모델: `ultrabrain` 카테고리 (gpt-5.4 xhigh)
-- 아키텍처 위반의 의미론적 판정 (Cloudflare 호환성, RLS 정책 누락 등)
+- 아키텍처 위반의 의미론적 판정 (runtime 호환성, 권한/정책 누락, boundary 위반 등)
 - 과설계 판정의 회색 영역
 - 길어질 수 있는 추론 (수 십 초)
 
 ---
 
-## 5.5 정적 도구 매핑 (스택 종속)
+## 5.5 정적 도구 매핑 (프로젝트 프로필 기반)
 
-| 룰 카테고리 | TypeScript 도구 | Python 도구 |
+Sentinel은 특정 언어/스택 도구를 하드코딩하지 않는다. Phase 0에서 `.harness/PROJECT_PROFILE.md`가 다음 도구 슬롯을 선언하고, 비어 있으면 Sentinel이 탐지 후 proposal을 만든다.
+
+| 룰 카테고리 | 도구 슬롯 | 필수 여부 |
 |---|---|---|
-| dead_code | `ts-prune`, `knip`, `eslint no-unused-*` | `vulture`, `ruff F401/F841` |
-| over_engineering | `eslint-plugin-sonarjs` (cognitive-complexity), custom ast-grep | `radon`, `mccabe` |
-| architecture_violation | `dependency-cruiser`, `eslint-plugin-boundaries` | `import-linter` |
-| conventions | `eslint` + `prettier` + tsc strict | `ruff` + `black` + `mypy` |
-| security_lite | `eslint-plugin-security`, `semgrep` (JS rules) | `bandit`, `semgrep` (py rules) |
-| test_coverage | `vitest --coverage`, `c8` | `pytest-cov` |
-| tdd_violation | git diff + `vitest list`/`pytest --collect-only` | (위) |
+| dead_code | `dead_code_commands[]` | 권장 |
+| over_engineering | `complexity_commands[]`, `ast_rules[]` | 권장 |
+| architecture_violation | `dependency_boundary_commands[]`, `architecture_rules[]` | 필수 |
+| conventions | `format_commands[]`, `lint_commands[]`, `typecheck_commands[]` | 필수 |
+| security_lite | `security_scan_commands[]` | 권장 |
+| test_coverage | `coverage_commands[]` | 프로젝트별 |
+| tdd_violation | `test_list_commands[]`, `test_run_commands[]`, git diff | 필수 |
 
-→ 위 도구들의 출력을 Sentinel이 통합 해석. `.opencode/skills/sentinel-rules/SKILL.md`에 도구 호출 레시피 작성.
+→ 위 도구들의 출력을 Sentinel이 통합 해석. `.opencode/skills/sentinel-rules/SKILL.md`에는 도구 호출 레시피가 아니라 **프로필 슬롯을 어떻게 읽고 실패를 분류할지**를 작성한다.
 
 ---
 

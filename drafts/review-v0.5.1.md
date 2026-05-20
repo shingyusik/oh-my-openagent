@@ -1,4 +1,4 @@
-# 종합 평가: SaaS 코딩 하네스 설계 (v0.5.1)
+# 종합 평가: 코딩 하네스 설계 (v0.5.1)
 
 > 대상: `drafts/my-harness-design.md` + `drafts/design/01~08-*.md` + `drafts/CHANGELOG.md` 전체
 > 일자: 2026-05-20
@@ -62,7 +62,7 @@ Tier 1(task) / Tier 2(phase, Tech-Writer Lead) / Tier 3(cycle, cross-cutting pat
 - **권고**: 5-step universal (research-or-plan / draft / peer-review / commit-or-revise / compound) + TDD/baseline을 *플러그*로 표현. 비즈니스 의미는 보존.
 
 **5. 비용·예산 모델 부재**
-- 매 commit Sentinel 2-tier + opus max 다수(Maestro/Strategist/DB/Security/Agent-Architect) + 병렬 worktree 5+.
+- 매 commit Sentinel 2-tier + 고비용 모델 다수(Maestro Core/Planning/Data/Security/Agent-Architect) + 병렬 worktree 5+.
 - 한 milestone당 토큰/$ 예상치 없음. `max_global_iterations: 50`만 있고 비용 게이트 X.
 - **권고**: cycle-level budget 룰을 Sentinel `[NEVER_GATE]` 옆에 추가. "milestone당 X 토큰 초과 시 HITL escalate".
 
@@ -78,13 +78,13 @@ Tier 1(task) / Tier 2(phase, Tech-Writer Lead) / Tier 3(cycle, cross-cutting pat
 - 코드 주석 TODO 단독 금지지만, 정당한 use case 있음 (해당 라인에서만 의미 있는 알림). 모두 B-* 만들면 backlog 노이즈 폭발.
 - **권고**: `TODO(B-099): ...` 패턴은 허용 (backlog 참조 있으면 OK). Sentinel 정규식 한 줄 추가로 해결.
 
-**9. UI/Frontend의 TDD 부적합**
+**9. UI 계열 worker의 TDD 부적합**
 - Visual exploration은 RED→GREEN보다 "show then test interactions"이 더 자연스러움. `tdd_exception`은 무거움.
-- **권고**: Frontend는 *visual snapshot test*를 default RED로 인정 (Playwright screenshot diff 등).
+- **권고**: UI 계열 worker는 *visual snapshot test*를 default RED로 인정 (Playwright screenshot diff 등).
 
 ### 🟢 Minor
 
-- **L2 워커 13개**: Backend+DB 분리, DevOps+Backend skill switching 등으로 8~9개로 슬림화 가능.
+- **worker profile 과다**: Implementation/Data/Ops 분리 기준이 흐리면 skill switching 비용이 커짐. 실제 hit-rate를 보고 병합/분리 권장.
 - **ASK 배치 protocol 미정의**: per-task / per-phase 어느 단위? stale ASK 방지책 없음.
 - **Observability 부재**: `progress.jsonl` / `sentinel-log.jsonl`만으로 운영 통찰 부족. 룰 hit-rate 대시보드 필요.
 - **Issue 흡수 UX 비용**: severity/reproduction은 `tags`로 표현하지만 bug-specific 필드 schema 권장.
@@ -117,9 +117,9 @@ Tier 1(task) / Tier 2(phase, Tech-Writer Lead) / Tier 3(cycle, cross-cutting pat
 **v0.7+에서:**
 6. 7/5/6-step → 5-step universal + plug 통합
 7. L2 워커 13 → 8~9 슬림화
-8. Frontend visual-snapshot TDD 인정
+8. UI 계열 visual-snapshot TDD 인정
 9. `TODO(B-id)` 허용 패턴 + Sentinel 룰 완화
 10. Observability layer (cycle 메트릭 마크다운 자동생성)
 
 **실험으로 검증할 것:**
-- §8.3 #16 "URL 단축 SaaS dry-run" — 이걸 안 돌려보고 implementation 들어가면 진짜 큰 위험. **여기가 진실의 순간**. 첫 3 milestone을 dry-run에서 돌려보고 Maestro 컨텍스트 폭증 / Sentinel BLOCK 충돌 / DoD verify 비용 등 실측 후 v0.6 결정 잠그기를 강력 권고.
+- §8.3 dry-run — 이걸 안 돌려보고 implementation 들어가면 진짜 큰 위험. **여기가 진실의 순간**. 작은 일반 코딩 프로젝트의 첫 3 milestone을 dry-run에서 돌려보고 Maestro 컨텍스트 폭증 / Sentinel BLOCK 충돌 / DoD verify 비용 등 실측 후 v0.6 결정 잠그기를 강력 권고.

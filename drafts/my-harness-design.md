@@ -1,4 +1,4 @@
-# SaaS 코딩 하네스 설계
+# 코딩 하네스 설계
 
 > 베이스: `oh-my-openagent` (OpenCode 플러그인 아키텍처) 위에 얹는 커스텀 레이어.
 > 변경 이력은 [`CHANGELOG.md`](./CHANGELOG.md) 참조. 본 문서들은 **현재 상태만** 기술한다.
@@ -7,7 +7,7 @@
 
 ## 한 줄 요약
 
-> **사용자는 Maestro(PM 매니저)와만 대화 → Maestro가 Vision → Roadmap → Milestone → Backlog → BacklogItem → Task 6계층으로 모든 일을 분해·정렬 → Refinement(백로그 정리) / Planning(이번 milestone 선정 + DoD 정의) / Execution(현재 task의 spec을 Foreman에 dispatch → 워커들이 worktree에서 7-step 병렬) / Review(DoD 검증 + 회고 + 우선순위 재정렬) 4-step 사이클을 milestone마다 반복 → Sentinel이 매 커밋마다 품질 + 워크플로 순서 + DoD 충족 감시 → Maestro가 가공된 보고서로 사용자에게 surface → 다음 milestone으로 사이클 재진입, Agent-Architect는 누적 데이터로 하네스 자체를 진화.**
+> **사용자는 Maestro Core와만 대화 → Maestro Core는 단일 사용자 창구와 최종 결정권을 유지하되 PM 반복 노동은 private PM sub-agent(Board Clerk, Milestone Planner, Spec Writer, Report Editor, Context Librarian)에 위임 → Vision → Roadmap → Milestone → Backlog → BacklogItem → Task 6계층을 구조화 → Refinement(백로그 정리) / Planning(이번 milestone 선정 + DoD 정의) / Execution(현재 task의 spec을 Foreman에 dispatch → 워커들이 worktree에서 7-step 병렬) / Review(DoD 검증 + 회고 + 우선순위 재정렬) 4-step 사이클을 milestone마다 반복 → Sentinel이 매 커밋마다 품질 + 워크플로 순서 + DoD 충족 감시 → Report Editor가 요약하고 Maestro Core가 사용자에게 surface → 다음 milestone으로 사이클 재진입, Agent-Architect는 누적 데이터로 하네스 자체를 진화.**
 
 ---
 
@@ -15,10 +15,10 @@
 
 ```
                     ╔═════════════════════════════════════════════╗
-   사용자 ◄════════►║  Maestro  (단일 창구 + PM 엔티티 매니저)         ║   P12
+   사용자 ◄════════►║  Maestro Core (단일 창구 + 최종 결정권자)         ║   P12
                     ║                                              ║
-                    ║  관리:  Vision / Roadmap / Milestone /        ║
-                    ║         Backlog / BacklogItem / Task         ║
+                    ║  위임: Board Clerk / Milestone Planner /      ║
+                    ║        Spec Writer / Report Editor / Librarian║
                     ║  사이클: Refinement → Planning → Execution    ║
                     ║         → Review (per milestone, P14)        ║
                     ╚════════════════╤═════════════════════════════╝
@@ -44,7 +44,7 @@
       compound ──► .harness/lessons/  ──► Librarian이 다음 task 시작 시 inject
           │
           ▼
-      Foreman Report ──► Maestro가 사용자에게 요약/번역하여 surface
+      Foreman Report ──► Report Editor ──► Maestro Core가 사용자에게 surface
 ```
 
 ---
@@ -56,12 +56,12 @@
 | # | 파일 | 내용 |
 |---|---|---|
 | 01 | [**원칙**](./design/01-principles.md) | P1~P16 비협상 원칙 + 강제 메커니즘 매핑 |
-| 02 | [**에이전트**](./design/02-agents.md) | 13개 에이전트 명세, 계층 구조, 7/5/6-step 워커 내부, 모델 할당 |
-| 03 | [**PM 데이터 모델**](./design/03-pm-model.md) | Vision/Roadmap/Milestone/Backlog/BacklogItem/Task 6-tier 엔티티 모델, 마크다운 스키마, 상태 전이, Maestro↔Foreman Task Spec/Report 인터페이스 |
+| 02 | [**에이전트**](./design/02-agents.md) | 코어 에이전트 + 진화형 worker profiles, 계층 구조, 7/5/6-step 워커 내부, 모델 할당 |
+| 03 | [**PM 데이터 모델**](./design/03-pm-model.md) | Vision/Roadmap/Milestone/Backlog/BacklogItem/Task 6-tier 엔티티 모델, 마크다운 스키마, 상태 전이, Maestro Core↔PM sub-agent↔Foreman Task Spec/Report 인터페이스 |
 | 04 | [**워크플로**](./design/04-workflow.md) | 실행 모드, Phase 0 부트스트랩, 4-step 사이클(Refinement/Planning/Execution/Review), Compound 3-tier, Phase 8 진화, Ralph 루프 종료 조건 |
 | 05 | [**Sentinel**](./design/05-sentinel.md) | 룰 카탈로그 (PM 워크플로/TDD/Compound/아키텍처/dead code/over-engineering 등), 2-tier 비용 제어, fingerprint-merge, adaptive gating, AUTO-FIX/ASK |
 | 06 | [**실행 인프라**](./design/06-execution-infra.md) | Worktree 병렬화, prohibition layer, 컨텍스트 격리, STATE.md O_EXCL lock, `.harness/` 디렉토리 |
-| 07 | [**인벤토리 & 명령**](./design/07-inventory.md) | 전체 디렉토리 구조, 스택, 모노레포 의존 룰, 사용자 명령 인터페이스 |
+| 07 | [**인벤토리 & 명령**](./design/07-inventory.md) | 전체 디렉토리 구조, 프로젝트 프로필, 진화형 컨벤션/워커, 사용자 명령 인터페이스 |
 | 08 | [**구현 매핑**](./design/08-implementation.md) | oh-my-openagent 매핑, 외부 하네스 패턴 통합, 다음 액션, 열린 결정 사항 |
 
 ---
@@ -79,16 +79,16 @@
 - [`application-plan.md`](./application-plan.md) (v0.3) — 위 4개 서베이의 패턴을 본 설계에 어떻게 매핑할지. S/A/B-tier 우선순위 + 적용 status + 구현 페이징 로드맵. **S-tier 13개 전부 적용 완료**.
 
 ### 변경 이력
-- [`CHANGELOG.md`](./CHANGELOG.md) — v0.1 ~ v0.5 모든 버전 변경 요약 + 결정 사항 누적 (34건).
+- [`CHANGELOG.md`](./CHANGELOG.md) — v0.1 ~ v0.5.3 모든 버전 변경 요약 + 결정 사항 누적 (51건).
 
 ---
 
 ## 빠른 시작 (사용자 관점)
 
 ```bash
-# 1. 새 SaaS 프로젝트 부트스트랩
+# 1. 새 프로젝트 부트스트랩
 /start "<자연어 목표>"
-  → Maestro 인터뷰
+  → Maestro Core 인터뷰
   → Vision + Roadmap + 첫 Milestone (DoD 포함) + 초기 Backlog 자동 생성
   → 사용자 컨펌 후 자동 진행
 

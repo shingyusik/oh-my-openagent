@@ -8,13 +8,18 @@
 
 ```
                     ╔═════════════════════════════════════════════╗
-   사용자 ◄════════►║  Maestro  (단일 창구 + PM 엔티티 매니저)         ║
+   사용자 ◄════════►║  Maestro Core (단일 창구 + 최종 결정권자)       ║
                     ║                                              ║
-                    ║  관리:  Vision / Roadmap / Milestone /        ║
-                    ║         Backlog / BacklogItem / Task         ║
-                    ║  동작:  CRUD · 의존성 · 우선순위 · DoD          ║
-                    ║         + 4-step 사이클 driver                ║
-                    ╚════════════════╤═════════════════════════════╝
+                    ║  소유: 사용자 대화 · HITL · 실행 승인 · 최종 판단 ║
+                    ║  위임: PM CRUD · 계획 초안 · spec · report 요약  ║
+                    ╚═══════════╤════════════╤════════════════════╝
+                                │            │ private PM sub-agents
+                                │            ▼
+                                │  ┌─────────────────────────────┐
+                                │  │ Board Clerk / Milestone     │
+                                │  │ Planner / Spec Writer /     │
+                                │  │ Report Editor / Librarian   │
+                                │  └─────────────────────────────┘
                                      │  Task Spec (명세서)
                                      ▼
                        ┌─────────────────────────────┐
@@ -37,37 +42,53 @@
       compound ──► .harness/lessons/  ──► Librarian이 다음 task 시작 시 inject
           │
           ▼
-      Foreman Report ──► Maestro가 사용자에게 요약/번역하여 surface
+      Foreman Report ──► Report Editor ──► Maestro Core가 사용자에게 surface
 ```
 
 **핵심 컨벤션**:
-- 사용자 화살표는 오직 Maestro에서 시작/종료
-- Foreman은 Maestro의 sub-agent (사용자가 직접 호출 불가)
-- L2 워커 출력 → Foreman → Maestro로 요약 흐름. 사용자가 본 모든 메시지는 Maestro가 작성한 것.
+- 사용자 화살표는 오직 Maestro Core에서 시작/종료
+- Maestro Core는 단일 사용자 창구와 최종 결정권자이며, PM 반복 노동은 private PM sub-agent에 위임
+- private PM sub-agent와 Foreman은 Maestro Core의 sub-agent (사용자가 직접 호출 불가)
+- L2 워커 출력 → Foreman → Report Editor → Maestro Core로 요약 흐름. 사용자가 본 모든 메시지는 Maestro Core가 작성한 것.
 
 ---
 
-## 2.2 에이전트 명세 (총 13)
+## 2.2 에이전트 명세 (코어 + 진화형 worker profiles)
 
 - `TDD` 컬럼: ✅ = RED→GREEN→REFACTOR 의무, ⚙️ = skill-TDD (산출물 baseline-fail 검증), ❌ = 적용 안 함 (prose/spec)
 - `Compound` 컬럼: 매 task 종료 시 lessons 캡처 기여도. **Lead** = lesson 작성 주체, Source = lesson 원천.
 
+### 2.2.1 코어 에이전트 (항상 존재)
+
 | 계층 | 에이전트 | 역할 | 권한 | TDD | Compound | OmO 매핑 |
 |---|---|---|---|---|---|---|
-| **L0** | **Maestro** | **단일 사용자 창구.** 6종 엔티티 (vision/roadmap/milestone/backlog/backlog-item/task) CRUD + 의존성 + 우선순위. 4-step 사이클 driver. 현재 task spec을 Foreman에 dispatch. 보고서 변환. HITL 인터뷰. 자료조사 위임. | read, ask user, delegate(task), write(.harness/board/*) | ❌ | Source (사용자 피드백 lesson) | Prometheus 확장 |
-| **L1** | **Foreman** | Maestro의 sub-agent (user-facing 아님). Spec을 받아 DAG 작성, worktree 스폰, 머지 직렬화, Ralph 루프 감시. 결과는 보고서로 Maestro에 반환. | bash(git), task, write(DAG file only) | ❌ | Source (워커 간 충돌/머지 lesson) | Atlas 확장 |
+| **L0** | **Maestro Core** | **단일 사용자 창구 + 최종 결정권자.** 사용자 대화, HITL 질문, 실행 승인, 4-step 사이클 orchestration, sub-agent 산출물 검토와 최종 surface. PM 노동은 직접 수행하지 않고 private PM sub-agent에 위임. | read(_index + active items), ask user, delegate(task), approve/reject | ❌ | Source (사용자 피드백 lesson) | Prometheus 확장 |
+| **L0-private** | **Board Clerk** | Vision/Roadmap/Milestone/Backlog/BacklogItem/Task CRUD, `_index.md` 갱신, cross-link 정합성, 상태 전이 적용. Maestro Core가 승인한 patch request만 반영. | write(.harness/board/*), read board/* | ❌ | Source (PM drift lesson) | 신규 (pm-board) |
+| **L0-private** | **Milestone Planner** | Refinement, backlog triage, milestone 후보, 우선순위/의존성 분석, DoD 초안. 실행 결정은 Maestro Core에 제안만 한다. | read board/*, write structured proposal only | ❌ | Source (planning lesson) | 신규 (planning) |
+| **L0-private** | **Spec Writer** | selected backlog item과 task를 Foreman Task Spec으로 변환. AC, constraints, worker allocation, escalation 조건을 schema에 맞춘다. | read board active items, write structured spec only | ❌ | Source (spec gap lesson) | 신규 (writing) |
+| **L0-private** | **Report Editor** | Foreman/Sentinel raw report를 사용자용 요약으로 변환. 코드/diff/raw 로그를 사용자에게 직접 노출하지 않는다. | read report, write structured summary only | ❌ | Source (report clarity lesson) | 신규 (writing) |
+| **L0-private** | **Context Librarian** | Maestro Core가 요청한 결정에 필요한 board 본문, lessons, prior decisions만 검색해 500자 내외 요약으로 반환. | read-only | ❌ | Source (retrieval lesson) | Librarian 확장 |
+| **L1** | **Foreman** | Maestro Core의 sub-agent (user-facing 아님). Spec을 받아 DAG 작성, worktree 스폰, 머지 직렬화, Ralph 루프 감시. 결과는 Report Editor와 Maestro Core에 반환. | bash(git), task, write(DAG file only) | ❌ | Source (워커 간 충돌/머지 lesson) | Atlas 확장 |
 | **L1** | **Sentinel** | 코드 품질 감사 (과설계/데드코드/컨벤션/TDD위반/아키위반/PM워크플로 위반). 거부 권한. | read, grep, lsp, ast-grep, task(spawn fixer only) | ⚙️ (룰 자체의 baseline) | Source (누적 finding이 가장 큰 lesson 원천) | 신규 |
-| **L2** | **Strategist** | 기획. PRD/유저스토리/AC 작성, 우선순위, 스코프 컷. **자기 출력에 plan_placeholder validator 적용** (TBD/모호 표현 자체 거부 후 재작성). | read, web, write(docs only) | ❌ | Source (PRD-실코드 갭 lesson) | 신규 (writing) |
-| **L2** | **Designer** | UX/UI. 와이어/디자인시스템 토큰/컴포넌트 사양. | read, write(design specs), multimodal-look | ❌ | Source | 신규 (artistry) |
-| **L2** | **Frontend** | UI 구현. | full code | **✅** | Source | 신규 (visual-engineering) |
-| **L2** | **Backend** | API/도메인 로직. | full code | **✅** | Source | 신규 (deep) |
-| **L2** | **DB Architect** | 스키마/마이그레이션/인덱스/쿼리 최적화. | full code, bash(migrations) | **✅** (마이그 dry-run + rollback 테스트) | Source | 신규 (ultrabrain) |
-| **L2** | **Security** | 인증/인가/시크릿/OWASP, 위협 모델링. | read, edit(security-related), audit | **✅** (보안 회귀 테스트) | Source | 신규 (ultrabrain) |
 | **L2** | **Agent Architect** | 메타. 새 워크플로우/에이전트/스킬 정의 + **하네스 자기 진화 제안**. | read, edit(.opencode/*), write(.harness/proposals/*) | ⚙️ skill-TDD | **Lead** (전체 lessons 통합 + 진화 제안 작성) | 신규 |
-| **L2** | **DevOps** | CI/CD, Cloudflare Workers/Pages/R2 배포, 환경변수, 시크릿, 로깅/모니터링, IaC. | full code, bash(deploy/wrangler/docker) | **✅** (deploy smoke test, rollback test) | Source | 신규 (deep) |
-| **L2** | **QA** | 테스트 전략, E2E/Integration/Unit 계층 설계, Playwright/Vitest/Pytest 작성, 회귀 풀, 커버리지 게이트. | full code (tests only), playwright skill | **✅** (테스트의 테스트) | **Lead** (test-failure lesson 정리) | 신규 (deep) |
-| **L2** | **Tech Writer** | API 레퍼런스, README, ADR, 사용자 가이드, 변경 로그, 데모 시나리오 + **lessons 본문 작성**. | read, write(docs only, .harness/lessons/*) | ❌ | **Lead** (lessons 마크다운 작성 책임) | 신규 (writing) |
 | **Helpers** | Oracle, Librarian, Explore, Multimodal-Looker | 기존 OmO 그대로 활용. | (기본값) | ❌ | Source | 그대로 |
+
+### 2.2.2 Worker profiles (프로젝트별 활성화)
+
+Worker profile은 하네스의 고정 원칙이 아니라 **프로젝트 프로필**이다. `/start` 시점에는 최소 seed만 제안하고, 실제 역할은 backlog/lessons/Sentinel hit-rate를 통해 채택·분리·병합·폐기된다.
+
+| 프로필 유형 | Use when | 기본 step | TDD | 생성/변경 경로 |
+|---|---|---|---|---|
+| **Planning Worker** | 요구사항, 범위, 우선순위, AC를 명확히 해야 할 때 | 5-step prose/spec | ❌ | seed 또는 Phase 8 proposal |
+| **Design Worker** | 사용자 경험, 시스템 설계, 정보구조, 인터페이스 설계가 필요할 때 | 5-step prose/spec | ❌ | seed 또는 Phase 8 proposal |
+| **Implementation Worker** | 코드 변경이 필요한 일반 작업 | 7-step code | ✅ | project profile에서 언어/스택별로 specialization |
+| **Data Worker** | 스키마, 마이그레이션, 데이터 파이프라인, 저장소 모델 변경 | 7-step code + dry-run/rollback plug | ✅ | 필요 시 specialization |
+| **Security Worker** | 권한, 인증, 입력 검증, 비밀, 위협 모델 관련 작업 | 7-step code + audit plug | ✅ | 필요 시 specialization |
+| **Quality Worker** | 테스트 전략, 회귀 테스트, 커버리지, E2E/통합 검증 | 7-step code | ✅ | 필요 시 specialization |
+| **Ops Worker** | 배포, CI/CD, 런타임, 관측성, 운영 자동화 | 7-step code + smoke/rollback plug | ✅ | 필요 시 specialization |
+| **Documentation Worker** | README, ADR, changelog, 사용자 문서, lessons 본문 | 5-step prose/spec | ❌ | seed 또는 Phase 8 proposal |
+
+예: 웹앱 프로젝트는 `ui-implementation` / `api-implementation`으로 나눌 수 있고, 라이브러리 프로젝트는 `public-api` / `compatibility` / `benchmark` worker로 진화할 수 있다. 하네스는 이름을 고정하지 않고 `worker-profiles/*.md`를 읽어 Foreman의 worker allocation에 반영한다.
 
 **Helpers 역할 요약**:
 - **Oracle**: 아키텍처 컨설팅 (읽기전용, 깊은 추론)
@@ -81,7 +102,7 @@
 
 각 워커의 step 흐름은 **워커 유형에 따라 다르다**. 각 step은 **별도 task() 세션**으로 실행되어 컨텍스트가 누적되지 않는다.
 
-### 2.3.1 코드 워커 (Backend / Frontend / DB / Security / DevOps / QA) — **7-step**
+### 2.3.1 코드 워커 (Implementation / Data / Security / Quality / Ops 등) — **7-step**
 
 ```
 Worker
@@ -114,17 +135,17 @@ Worker
 - **모든 단계**: Sentinel `analysis_paralysis` — 연속 5회 read-only 후 자백 또는 BLOCKED 보고 의무.
 
 **TDD 예외** (drop의 경우만):
-- plan에 `tdd_exception: "<사유>"` 명시 + Maestro HITL 승인
-- 허용 카테고리: 1회성 spike/POC (`.spikes/` 디렉토리), hot-fix(사후 회귀 테스트 의무), 설정 변경, 마이그레이션 SQL(dry-run 의무로 대체)
+- plan에 `tdd_exception: "<사유>"` 명시 + Maestro Core HITL 승인
+- 허용 카테고리: 1회성 spike/POC (`.spikes/` 디렉토리), hot-fix(사후 회귀 테스트 의무), 설정 변경, 데이터/스키마 마이그레이션(dry-run 의무로 대체)
 
-### 2.3.2 Prose/Spec 워커 (Strategist / Designer / Tech Writer) — **5-step**
+### 2.3.2 Prose/Spec 워커 (Planning / Design / Documentation 등) — **5-step**
 
 ```
 Worker
   ├─ step:research          → 자료조사, 기존 산출물 검토
   ├─ step:draft             → 초안 작성
   │                           (Sentinel plan_placeholder 검증:
-  │                            Strategist의 PRD/task plan 산출에 TBD/모호 표현 차단)
+  │                            Planning Worker의 spec/task plan 산출에 TBD/모호 표현 차단)
   ├─ step:peer-review       → 다른 prose 워커 또는 Oracle에 리뷰 의뢰 (별도 task())
   ├─ step:revise            → 피드백 반영
   └─ step:compound          → lessons 후보 emit
@@ -149,7 +170,7 @@ Worker
   ```json
   {
     "u_id": "U-007",
-    "worker": "backend",
+    "worker": "implementation",
     "status": "done",
     "commit": "abc123",
     "tests_added": 4,
@@ -166,17 +187,21 @@ Worker
 
 | 에이전트 | 1순위 | Fallback | 카테고리 | 이유 |
 |---|---|---|---|---|
-| Maestro | claude-opus-4-7 max | kimi-k2.5 | — | 인터뷰·대화 품질, PM 추론 |
+| Maestro Core | claude-opus-4-7 max | kimi-k2.5 | — | 인터뷰·대화 품질, 최종 판단 |
+| Board Clerk | gpt-5.4 medium | claude-sonnet-4-6 | writing | schema 정합성, 원장 수정 |
+| Milestone Planner | claude-opus-4-7 | gpt-5.4 | writing | 우선순위·의존성 추론 |
+| Spec Writer | gpt-5.4 medium | claude-sonnet-4-6 | writing | 명세 구조화 |
+| Report Editor | gpt-5.4-mini | claude-haiku-4-5 | quick | 보고서 요약 |
+| Context Librarian | gpt-5.4-mini | claude-haiku-4-5 | quick | 검색 요약 |
 | Foreman | claude-sonnet-4-6 | gpt-5.4 medium | — | DAG 추론, 비용 효율 |
 | Sentinel (1차) | gpt-5.4-mini | claude-haiku-4-5 | quick | 매 커밋이라 cheap |
 | Sentinel (2차) | gpt-5.4 xhigh | claude-opus-4-7 max | ultrabrain | 깊은 판정 |
-| Strategist | claude-opus-4-7 | kimi-k2.5 | writing | 글·스펙 작성 |
-| Designer | gemini-3.1-pro | claude-opus-4-7 | artistry | 시각/창의 |
-| Frontend | gemini-3.1-pro | gpt-5.4 | visual-engineering | UI 강점 |
-| Backend | gpt-5.4 medium | claude-opus-4-7 | deep | 자율 실행 |
-| DB Architect | gpt-5.4 xhigh | claude-opus-4-7 max | ultrabrain | 정확성 |
-| Security | gpt-5.4 xhigh | claude-opus-4-7 max | ultrabrain | 추론 깊이 |
 | Agent Architect | claude-opus-4-7 max | gpt-5.4 xhigh | ultrabrain | 메타 설계 |
-| DevOps | gpt-5.4 medium | claude-sonnet-4-6 | deep | 자율 배포 스크립트 |
-| QA | gpt-5.4 medium | gemini-3.1-pro | deep | 테스트 시나리오 생성 |
-| Tech Writer | gemini-3.1-pro | claude-opus-4-7 | writing | 산문/문서 품질 |
+| Planning Worker | claude-opus-4-7 | kimi-k2.5 | writing | 요구사항·범위 추론 |
+| Design Worker | gemini-3.1-pro | claude-opus-4-7 | artistry | 설계·UX·시각 추론 |
+| Implementation Worker | gpt-5.4 medium | claude-opus-4-7 | deep | 자율 코드 변경 |
+| Data Worker | gpt-5.4 xhigh | claude-opus-4-7 max | ultrabrain | 데이터 무결성 |
+| Security Worker | gpt-5.4 xhigh | claude-opus-4-7 max | ultrabrain | 보안 추론 |
+| Quality Worker | gpt-5.4 medium | gemini-3.1-pro | deep | 테스트 시나리오 생성 |
+| Ops Worker | gpt-5.4 medium | claude-sonnet-4-6 | deep | 운영 자동화 |
+| Documentation Worker | gemini-3.1-pro | claude-opus-4-7 | writing | 산문/문서 품질 |

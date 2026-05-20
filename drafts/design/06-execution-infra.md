@@ -6,11 +6,12 @@
 
 ## 6.1 컨텍스트 격리 메커니즘
 
-3-레벨 격리:
+4-레벨 격리:
 
 | 레벨 | 보유 컨텍스트 | 격리 수단 |
 |---|---|---|
-| **Maestro** | `goal.md`, `board/*`, Phase별 요약(JSON), 사용자 발화 | Foreman 결과는 ≤500자 요약만 받음. 코드/diff/raw sentinel 출력 안 받음. |
+| **Maestro Core** | `goal.md`, `board/*/_index.md`, active milestone/task, Phase별 요약(JSON), 사용자 발화 | board 본문은 on-demand read. Foreman 결과는 Report Editor가 만든 ≤500자 요약만 받음. 코드/diff/raw sentinel 출력 안 받음. |
+| **Private PM sub-agent** | 위임받은 단일 PM 작업에 필요한 board 본문/lessons/report 조각 | task() 별도 세션 + schema 응답. user-facing 출력 없음 |
 | **Foreman** | `dag.json`, 각 worker의 step-result 요약, Task Spec | 각 worker의 코드/diff는 절대 안 봄 |
 | **Worker(L2)** | 자기 task spec, 자기 worktree 파일들 | step별로 별도 task() 호출로 fresh context |
 | **Worker step** | 직전 step의 산출물만 (plan.md, diff 등) | 입력 명세에 의해 강제 |
@@ -20,7 +21,19 @@
 - 각 step의 출력은 구조화된 JSON으로 받음 (`{plan_path, summary}` 등)
 - 상위 에이전트는 그 JSON만 보관
 
-**P12 강제**: 사용자 화면에는 항상 Maestro의 1차 가공된 메시지만 나옴. Foreman/Sentinel/L2 워커의 stdout은 시스템 차원에서 user-facing 채널 X.
+**P12 강제**: 사용자 화면에는 항상 Maestro Core의 1차 가공된 메시지만 나옴. private PM sub-agent/Foreman/Sentinel/L2 워커의 stdout은 시스템 차원에서 user-facing 채널 X.
+
+### 6.1.1 Maestro Core 컨텍스트 상한
+
+Maestro Core는 다음만 상시 컨텍스트에 둔다:
+
+- 사용자 목표와 현재 모드
+- `board/*/_index.md`
+- active `vision`, `milestone`, `task`
+- 최근 Foreman/Report Editor summary
+- pending HITL asks
+
+board 본문, lessons, raw report, Sentinel 로그는 Context Librarian 또는 Report Editor에 on-demand로 요청한다. Maestro Core가 PM 원장 전체를 직접 스캔하는 것은 금지한다.
 
 ---
 
@@ -33,15 +46,15 @@ project/
 ├─ .git/
 ├─ .harness/                  ← 런타임 상태
 └─ .worktrees/                ← 병렬 작업장 (gitignore)
-   ├─ backend-T-101-U-001/
-   ├─ frontend-T-102-U-001/
-   ├─ db-T-103-U-001/
+   ├─ implementation-T-101-U-001/
+   ├─ data-T-102-U-001/
+   ├─ quality-T-103-U-001/
    └─ ...
 ```
 
-worktree 경로: `.worktrees/<role>-<T-id>-<U-id>` (예: `.worktrees/backend-T-101-U-001`)
+worktree 경로: `.worktrees/<worker-profile>-<T-id>-<U-id>` (예: `.worktrees/implementation-T-101-U-001`)
 
-- `<role>`: 워커 종류 (backend/frontend/db/security/devops/qa)
+- `<worker-profile>`: PROJECT_PROFILE의 active worker profile
 - `<T-id>`: 부모 Task ID
 - `<U-id>`: Foreman 내부 unit ID
 
@@ -92,9 +105,9 @@ on worker step:commit:
 
 ### 6.2.5 DAG 메타룰 (Foreman의 휴리스틱)
 
-- DB 스키마 변경은 항상 다른 모든 코드보다 **선행**
-- Security task는 해당 도메인 task 완료 **후행** (실코드 보고 감사)
-- Design spec은 Frontend task의 **선행 조건**
+- Data model/schema 변경은 의존 구현보다 **선행**
+- Security-sensitive task는 해당 도메인 task 완료 **후행** (실코드 보고 감사)
+- Design spec은 관련 implementation task의 **선행 조건**
 - 같은 파일을 수정하는 두 unit은 같은 wave에 둘 수 없음 (직렬화 강제)
 
 → Foreman 프롬프트에 이 메타룰을 하드코딩.
@@ -133,9 +146,9 @@ exec {LOCK_FD}>&-
 - mode: gated
 
 ## Active Workers
-- backend (T-101): in_progress (worktree: backend-T-101-U-001)
-- frontend (T-102): in_progress (worktree: frontend-T-102-U-001)
-- qa (T-103): pending
+- implementation (T-101): in_progress (worktree: implementation-T-101-U-001)
+- data (T-102): in_progress (worktree: data-T-102-U-001)
+- quality (T-103): pending
 
 ## Completed (this milestone)
 - T-099, T-100
@@ -157,7 +170,8 @@ exec {LOCK_FD}>&-
 
 | 에이전트 | 갱신 권한 |
 |---|---|
-| Maestro | phase, mode, Current Cycle 전체 |
+| Maestro Core | phase, mode, Current Cycle 승인 |
+| Board Clerk | Current Cycle entity links, board-derived status summary |
 | Foreman | Active Workers, Completed, Blocked, Recent Events |
 | Sentinel | Last Sentinel Run, Recent Events |
 | L2 워커 | Recent Events만 (자기 task 관련) |
@@ -171,8 +185,8 @@ exec {LOCK_FD}>&-
 ```
 .harness/
 ├─ goal.md                   ← Phase 0에서 사용자 합의된 골 (불변)
-├─ prd.md                    ← Strategist 산출 (milestone 단위 갱신)
-├─ design-spec.md            ← Designer 산출
+├─ prd.md                    ← Planning Worker 산출 (milestone 단위 갱신)
+├─ design-spec.md            ← Design Worker 산출
 ├─ ETHOS.md                  ← 모든 워커 preamble에 inject되는 원칙 문서
 ├─ STATE.md                  ← 현재 phase + active workers (O_EXCL lock)
 ├─ PROJECT.md                ← 프로젝트 메타 (이름, 목적, stakeholder)
@@ -228,4 +242,4 @@ Task T-101 done                Active Workers 제거 + Completed 추가
 phase 전이                     phase + phase_entered_at/completed_at
 ```
 
-이 동기화는 Maestro/Foreman의 책임. Sentinel은 동기화 누락을 감시.
+이 동기화는 Maestro Core/Board Clerk/Foreman의 책임. Sentinel은 동기화 누락을 감시.
