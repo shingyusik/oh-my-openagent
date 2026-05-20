@@ -14,16 +14,19 @@ One sentence:
 
 ---
 
-## 1.2 Fixed Core vs Adaptive Layer
+## 1.2 What Stays Fixed vs What Evolves
 
-| Layer | Status | Examples |
-|---|---|---|
-| **Fixed core** | Always enforced | TDD for code work, Maestro Core as single user surface, Backlog SSOT, measurable DoD, 4-step milestone cycle, Sentinel, Compound, Phase 8 evolution |
-| **Project profile** | Created at Phase 0, evolves over time | languages, runtimes, package managers, test/build commands, repository layout, active worker profiles |
-| **Convention registry** | Starts small, grows from repeated findings | naming, dependency direction, formatting, test pyramid, release rules |
-| **Worker profiles** | Seeded, then split/merge/deprecate by evidence | implementation, data, quality, ops, documentation, project-specific specialists |
+This section defines the policy boundary: which parts of VibeForge are contract-level rules and which parts are project-specific material that grows inside those rules.
 
-The core protects correctness. The adaptive layer lets each project develop its own execution shape.
+| Part | Fixed or Evolving | How It Behaves | Examples |
+|---|---|---|---|
+| **Harness contract** | Fixed | Always enforced by Maestro Core, Foreman, Sentinel, and the runtime files | TDD for code work, Maestro Core as single user surface, Backlog SSOT, measurable DoD, 4-step milestone cycle, Compound, Phase 8 evolution |
+| **Project profile** | Evolving | Created during Phase 0, then updated when the repository reveals better facts | languages, runtimes, package managers, test/build commands, repository layout, active worker profiles |
+| **Convention registry** | Evolving | Starts small and becomes stricter only when repeated findings justify a rule | naming, dependency direction, formatting, test pyramid, release rules |
+| **Worker profiles** | Evolving | Start from seed profiles, then split, merge, specialize, or retire by evidence | implementation, data, quality, ops, documentation, project-specific specialists |
+| **Management practice** | Evolving | Refines how the fixed PM model is operated for this project | prioritization habits, report shape, milestone sizing, review cadence |
+
+The fixed contract protects correctness. The evolving parts let each project develop its own execution shape. The L0/L1/L2 architecture in the next section implements both.
 
 ---
 
@@ -44,39 +47,64 @@ User
              proposals for workers, rules, skills, hooks, and process changes
 ```
 
-Important ownership boundaries:
+Ownership by architecture component:
 
-| Boundary | Rule |
-|---|---|
-| User surface | Only Maestro Core speaks to the user |
-| PM write path | Board Clerk writes `board/*`; Maestro Core approves |
-| Execution | Foreman owns DAG/worktree/merge orchestration |
-| Code work | Worker profiles own their task worktree and step flow |
-| Quality gates | Sentinel can fix, ask, or block |
-| Evolution | Agent Architect proposes; Maestro Core and user decide |
+| Architecture Component | Owns | Boundary |
+|---|---|---|
+| User | Goals, approvals, and decision input | Talks only with Maestro Core |
+| L0 Maestro Core | User conversation, HITL questions, final approval, visible status | Does not perform PM bookkeeping or code work directly |
+| L0-private PM sub-agents | Board updates, milestone planning, Task Spec drafting, report editing, context lookup | Operate behind Maestro Core and never speak directly to the user |
+| L1 Foreman | DAG, worktree dispatch, merge orchestration, Task Report | Receives approved Task Specs, not raw user requests |
+| L1 Sentinel | Workflow, quality, convention, and DoD gates | Can fix, ask, or block, but does not own product decisions |
+| L2 Worker Profiles | Task worktree execution and step flow | Own only their assigned task scope |
+| Meta Agent Architect | Harness improvement proposals | Proposes changes; Maestro Core and user decide |
 
 ---
 
 ## 1.4 Non-Negotiable Principles
 
+The principles are grouped by the kind of discipline they protect. Principle IDs follow this grouped order and are used for cross-document references.
+
+### Single Surface, Real Decisions
+
 | ID | Principle | Meaning |
 |---|---|---|
-| P1 | **Plan-first** | No code work before a concrete plan, review, and approval path |
-| P2 | **Project-adaptive agents** | Core agents are fixed; worker profiles and conventions evolve by project evidence |
-| P3 | **Context isolation by hierarchy** | Higher layers see structured summaries, not raw lower-layer context |
-| P4 | **Worktree parallelism by default** | Independent DAG units run in separate worktrees |
-| P5 | **Always-on quality supervision** | Sentinel runs at commit, phase, and merge gates |
-| P6 | **Ralph loop until satisfied** | The harness keeps cycling until acceptance and DoD evidence exist |
-| P7 | **HITL only at decision forks** | The user is asked for real decisions, not routine execution details |
-| P8 | **No silent expansion** | Agents cannot expand scope without backlog/plan traceability |
-| P9 | **TDD-first for code work** | RED -> GREEN -> REFACTOR is mandatory unless approved exception applies |
-| P10 | **Compound every cycle** | Task, phase, and milestone learning is captured and reused |
-| P11 | **Self-evolving harness** | Usage data drives proposed improvements to the harness itself |
-| P12 | **Maestro Core is the only user surface and decision owner** | Sub-agents never speak directly to the user |
-| P13 | **Backlog is the single source of truth** | All todo/work items live in backlog, not scattered notes |
-| P14 | **4-step cycle enforced** | Refinement -> Planning -> Execution -> Review cannot be skipped |
-| P15 | **Definition of Done mandatory** | Milestones need measurable DoD and evidence before completion |
-| P16 | **Flexibility with traceability** | Plans may change, but changes update links and append decision history |
+| P1 | **HITL only at decision forks** | The user is asked for real decisions, not routine execution details |
+| P2 | **Maestro Core is the only user surface and decision owner** | Sub-agents never speak directly to the user |
+
+### One Planning Spine
+
+| ID | Principle | Meaning |
+|---|---|---|
+| P3 | **Plan-first** | No code work before a concrete plan, review, and approval path |
+| P4 | **No silent expansion** | Agents cannot expand scope without backlog/plan traceability |
+| P5 | **Backlog is the single source of truth** | All todo/work items live in backlog, not scattered notes |
+| P6 | **4-step cycle enforced** | Refinement -> Planning -> Execution -> Review cannot be skipped |
+| P7 | **Definition of Done mandatory** | Milestones need measurable DoD and evidence before completion |
+| P8 | **Flexibility with traceability** | Plans may change, but changes update links and append decision history |
+
+### Parallel Execution, TDD Discipline
+
+| ID | Principle | Meaning |
+|---|---|---|
+| P9 | **Worktree parallelism by default** | Independent DAG units run in separate worktrees |
+| P10 | **Ralph loop until satisfied** | The harness keeps cycling until acceptance and DoD evidence exist |
+| P11 | **TDD-first for code work** | RED -> GREEN -> REFACTOR is mandatory unless approved exception applies |
+
+### Isolated Context, Project Adaptation
+
+| ID | Principle | Meaning |
+|---|---|---|
+| P12 | **Project-adaptive agents** | Core agents are fixed; worker profiles and conventions evolve by project evidence |
+| P13 | **Context isolation by hierarchy** | Higher layers see structured summaries, not raw lower-layer context |
+
+### Gated Quality, Compounding Learning
+
+| ID | Principle | Meaning |
+|---|---|---|
+| P14 | **Always-on quality supervision** | Sentinel runs at commit, phase, and merge gates |
+| P15 | **Compound every cycle** | Task, phase, and milestone learning is captured and reused |
+| P16 | **Self-evolving harness** | Usage data drives proposed improvements to the harness itself |
 
 ---
 
@@ -86,7 +114,7 @@ Read in order:
 
 | # | File | Scope |
 |---|---|---|
-| 01 | `01-overview.md` | Concept, fixed core, adaptive layer, architecture map |
+| 01 | `01-overview.md` | Concept, fixed rules, evolving project areas, architecture map |
 | 02 | `02-l0-maestro-pm.md` | Maestro Core, private PM sub-agents, PM entity model |
 | 03 | `03-l1-foreman-execution.md` | Foreman execution layer, DAG, worktrees, Task Spec/Report |
 | 04 | `04-l2-worker-profiles.md` | Worker profile model and worker internal step flows |

@@ -13,13 +13,13 @@
 ### 1. **4-level Verifier (§5.9)** — 가장 차별적
 EXISTS → SUBSTANTIVE → WIRED → REAL DATA FLOW. 대부분 하네스가 Level 1~2에서 끝나는데, 이 설계는 Level 3 (마운트/라우터 등재)과 Level 4 (실데이터 흐름)까지 강제. **"통과 증거 없으면 실패"** 라는 adversarial 기본가정도 정확.
 
-### 2. **Backlog SSOT (P13)** — AI 에이전트 고질병 정통 타격
+### 2. **Backlog SSOT (P5)** — AI 에이전트 고질병 정통 타격
 코드 주석 TODO 단독 금지 + 모든 todo는 `B-*.md`로. `discovered_not_logged` 룰까지 P0로. AI가 "추후", "TODO:" 남기고 빠지는 패턴을 시스템 차원에서 차단하는 게 정확한 접근.
 
-### 3. **DoD 의무 + verify_cmd (P15)**
+### 3. **DoD 의무 + verify_cmd (P7)**
 `measurable: true` 강제 + 측정 불가 표현 ("대충", "잘 되어야") BLOCK. "만들었다 ≠ 검증되었다"를 시스템 차원에서 강제.
 
-### 4. **Maestro 단일 창구 (P12)**
+### 4. **Maestro 단일 창구 (P2)**
 사용자 인지부담 일원화. Foreman/Sentinel/L2의 stdout이 시스템 차원에서 user-facing 채널 X로 격리. 컨텍스트 격리 3-레벨 (Maestro/Foreman/Worker step) 설계도 깔끔.
 
 ### 5. **Worktree prohibition + STATE.md O_EXCL lock**
@@ -40,10 +40,10 @@ Tier 1(task) / Tier 2(phase, Tech-Writer Lead) / Tier 3(cycle, cross-cutting pat
 
 ### 🔴 Critical — 진행 전에 풀어야 할 것
 
-**1. Maestro가 단일 병목 + 과부하 (P12의 그늘)**
+**1. Maestro가 단일 병목 + 과부하 (P2의 그늘)**
 - 사용자 대화 + 6-tier CRUD + 4-step driver + DoD 인터뷰 + Task Spec 작성 + 보고서 가공
 - 프롬프트 응집도 ↑ 라기엔 *Maestro 한 프롬프트에 5개 책무*. §8.4 "Maestro 자체 컨텍스트 압축" 으로 자인.
-- **권고**: `_index.md`만 컨텍스트에 두고 본문은 on-demand read 강제하는 룰을 P12 강제 메커니즘으로 추가. Maestro의 task() sub-call로 PRD 작성/보고서 가공 등을 분리하는 게 안전.
+- **권고**: `_index.md`만 컨텍스트에 두고 본문은 on-demand read 강제하는 룰을 P2 강제 메커니즘으로 추가. Maestro의 task() sub-call로 PRD 작성/보고서 가공 등을 분리하는 게 안전.
 
 **2. 개방 결정 ~20건이 implementation-blocking (§8.4)**
 - DoD verify_cmd 표준 셰이프, DoD 항목 수 권장, 다중 milestone 동시 진행, Vision 변경 정책, ETHOS 영구화 게이트, lesson fingerprint 알고리즘 등 *critical*.

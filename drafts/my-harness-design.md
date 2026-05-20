@@ -16,12 +16,12 @@
 
 ```
                     ╔═════════════════════════════════════════════╗
-   사용자 ◄════════►║  Maestro Core (단일 창구 + 최종 결정권자)         ║   P12
+   사용자 ◄════════►║  Maestro Core (단일 창구 + 최종 결정권자)         ║   P2
                     ║                                              ║
                     ║  위임: Board Clerk / Milestone Planner /      ║
                     ║        Spec Writer / Report Editor / Librarian║
                     ║  사이클: Refinement → Planning → Execution    ║
-                    ║         → Review (per milestone, P14)        ║
+                    ║         → Review (per milestone, P6)         ║
                     ╚════════════════╤═════════════════════════════╝
                                      │  Task Spec (명세서)
                                      ▼
@@ -116,11 +116,11 @@
 
 | 원칙 | Sentinel 룰 | 효과 |
 |---|---|---|
-| P9 TDD-first | `tdd_violation` | 테스트 없는 코드 머지 차단 |
-| P10 Compound | `compound_required` | 매 task/phase/cycle 끝에 lessons 캡처 의무 |
-| P13 Backlog SSOT | `backlog_singularity` + `discovered_not_logged` | 코드 주석 TODO 단독 금지, 모든 todo는 backlog로 |
-| P14 4-step cycle | `workflow_phase_skip` | STATE.md phase 마커 검증, 단계 스킵 차단 |
-| P15 DoD mandatory | `dod_required` | 측정 가능한 DoD 없이 milestone 생성/완료 불가 |
-| P16 Flexibility traceability | `flexibility_traceability` | 변경 시 영향 backlog 재정렬 + CONTEXT.md 로그 |
+| P11 TDD-first | `tdd_violation` | 테스트 없는 코드 머지 차단 |
+| P15 Compound | `compound_required` | 매 task/phase/cycle 끝에 lessons 캡처 의무 |
+| P5 Backlog SSOT | `backlog_singularity` + `discovered_not_logged` | 코드 주석 TODO 단독 금지, 모든 todo는 backlog로 |
+| P6 4-step cycle | `workflow_phase_skip` | STATE.md phase 마커 검증, 단계 스킵 차단 |
+| P7 DoD mandatory | `dod_required` | 측정 가능한 DoD 없이 milestone 생성/완료 불가 |
+| P8 Flexibility traceability | `flexibility_traceability` | 변경 시 영향 backlog 재정렬 + CONTEXT.md 로그 |
 
 (전체 룰: [`design/05-l1-sentinel-quality.md`](./design/05-l1-sentinel-quality.md))

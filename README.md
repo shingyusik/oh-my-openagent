@@ -11,7 +11,7 @@ The harness keeps a small set of core workflow laws fixed, then lets project-spe
 
 User talks only to Maestro Core. Maestro Core owns decisions and delegates PM labor to private PM sub-agents. Foreman turns approved Task Specs into parallel work. Worker profiles execute in isolated worktrees. Sentinel guards quality and workflow rules. Lessons compound into future behavior, and Agent Architect proposes harness evolution.
 
-## Fixed Core
+## What Stays Fixed
 
 The harness always enforces these rules:
 
@@ -26,13 +26,13 @@ The harness always enforces these rules:
 | Sentinel gates | Quality, workflow, convention, and DoD checks run at commit/phase/merge gates |
 | Compound learning | Lessons from tasks, phases, and milestones are captured and reused |
 
-Everything else is adaptive.
+Project-specific details evolve inside those rules.
 
-## Adaptive Layer
+## What Evolves By Project
 
 The project shapes the harness over time:
 
-| Layer | Evolves From |
+| Evolving Area | Evolves From |
 |---|---|
 | Project profile | Languages, runtimes, package managers, commands, repository layout |
 | Convention registry | Naming, dependency direction, formatting, test pyramid, release rules |
@@ -59,16 +59,17 @@ User
              proposals for workers, rules, skills, hooks, and process changes
 ```
 
-Ownership boundaries:
+Ownership by architecture component:
 
-| Boundary | Rule |
-|---|---|
-| User surface | Only Maestro Core speaks to the user |
-| PM write path | Board Clerk writes `board/*`; Maestro Core approves |
-| Execution | Foreman owns DAG, worktree, and merge orchestration |
-| Code work | Worker profiles own their task worktree and step flow |
-| Quality gates | Sentinel can fix, ask, or block |
-| Evolution | Agent Architect proposes; Maestro Core and user decide |
+| Architecture Component | Owns | Boundary |
+|---|---|---|
+| User | Goals, approvals, and decision input | Talks only with Maestro Core |
+| L0 Maestro Core | User conversation, HITL questions, final approval, visible status | Does not perform PM bookkeeping or code work directly |
+| L0-private PM sub-agents | Board updates, milestone planning, Task Spec drafting, report editing, context lookup | Operate behind Maestro Core and never speak directly to the user |
+| L1 Foreman | DAG, worktree dispatch, merge orchestration, Task Report | Receives approved Task Specs, not raw user requests |
+| L1 Sentinel | Workflow, quality, convention, and DoD gates | Can fix, ask, or block, but does not own product decisions |
+| L2 Worker Profiles | Task worktree execution and step flow | Own only their assigned task scope |
+| Meta Agent Architect | Harness improvement proposals | Proposes changes; Maestro Core and user decide |
 
 ## Operating Loop
 
@@ -99,7 +100,7 @@ Read these in order:
 
 | # | File | Scope |
 |---|---|---|
-| 01 | [`Overview`](drafts/design/01-overview.md) | Concept, fixed core, adaptive layer, architecture map |
+| 01 | [`Overview`](drafts/design/01-overview.md) | Concept, fixed rules, evolving project areas, architecture map |
 | 02 | [`L0 Maestro + PM`](drafts/design/02-l0-maestro-pm.md) | Maestro Core, private PM sub-agents, PM entity model |
 | 03 | [`L1 Foreman`](drafts/design/03-l1-foreman-execution.md) | Task Spec, DAG, worktree orchestration, Task Report |
 | 04 | [`L2 Worker Profiles`](drafts/design/04-l2-worker-profiles.md) | Worker profile model and internal step flows |

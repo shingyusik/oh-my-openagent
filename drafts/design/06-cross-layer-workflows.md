@@ -193,7 +193,7 @@ If not done:
 
 | Invariant | Enforced By |
 |---|---|
-| only Maestro Core is user-facing | P12 + runtime channel isolation |
+| only Maestro Core is user-facing | P2 + runtime channel isolation |
 | no phase skipping | Sentinel `workflow_phase_skip` |
 | no hidden todo | Sentinel `backlog_singularity` / `discovered_not_logged` |
 | no code without evidence | TDD + Self-Check + 4-level verifier |

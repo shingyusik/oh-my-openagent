@@ -5,6 +5,18 @@
 
 ---
 
+## v0.5.7 (2026-05-20) - fixed/evolving 구분 명확화
+
+### 변경 요약
+- **개념 구분 명칭 변경**: `Fixed Core vs Adaptive Layer`를 `What Stays Fixed vs What Evolves`로 바꿔 아키텍처 계층과 혼동되지 않게 정리.
+- **표 구조 보강**: fixed/evolving 여부, 동작 방식, 예시를 분리해 어느 부분이 고정 계약이고 어느 부분이 프로젝트별 진화 영역인지 명확화.
+- **ownership 표 정렬**: ownership boundary 표를 `L0/L1/L2/Meta` 아키텍처 컴포넌트와 1:1로 매칭되도록 재구성.
+- **원칙 묶음 재구성**: P1~P16을 사용자 접점, 계획 spine, 실행 규율, 컨텍스트/적응, 품질/학습 성격별로 묶어 overview에서 한눈에 읽히도록 정리.
+- **원칙 번호 재정렬**: 묶음 순서에 맞춰 원칙 번호를 재부여하고 관련 설계/리뷰 문서의 principle reference를 갱신.
+- **문서 맵 용어 정리**: overview와 README에서 `adaptive layer` 대신 `evolving project areas` 표현 사용.
+
+---
+
 ## v0.5.6 (2026-05-20) - VibeForge Harness 명명
 
 ### 변경 요약
@@ -146,7 +158,7 @@
 - `design/05-l1-sentinel-quality.md` — 룰 4종 + §5.9 4-level verifier 방법론 신규 섹션
 - `design/04-l2-worker-profiles.md` — 7-step에 self-check 출력 의무 명시, 5-step에 plan_placeholder 게이트 추가, Strategist 책무 보강
 - `design/06-cross-layer-workflows.md` — Review 단계 DoD 검증에 4-level verifier 명시
-- `design/01-overview.md` — P1/P5 강제 메커니즘 표에 신규 4룰 + 방법론 매핑 추가
+- `design/01-overview.md` — P3/P14 강제 메커니즘 표에 신규 4룰 + 방법론 매핑 추가
 - `design/08-implementation-roadmap.md` — S5/S6/S7/S8/A1의 본 설계 위치 정확화
 
 ---
@@ -155,11 +167,11 @@
 
 ### 변경 요약
 - **PM 계층 재정렬**: `Vision → Roadmap → Milestone → Backlog → BacklogItem → Task` 6-tier (Vision 신규 최상단).
-- **Backlog = 단일 진실 저장소 (SSOT)**: 기능/버그/기술부채/리서치 모든 것이 backlog로. 다른 todo store 금지 (P13 신규).
-- **4-step 운영 사이클 강제**: Refinement → Planning → Execution → Review. Maestro와 Sentinel이 단계 스킵 차단 (P14 신규).
-- **Definition of Done (DoD) 의무화**: 모든 milestone은 측정 가능한 DoD 없이 생성 불가. 모든 DoD PASS 없이 done 불가 (P15 신규).
+- **Backlog = 단일 진실 저장소 (SSOT)**: 기능/버그/기술부채/리서치 모든 것이 backlog로. 다른 todo store 금지 (P5 신규).
+- **4-step 운영 사이클 강제**: Refinement → Planning → Execution → Review. Maestro와 Sentinel이 단계 스킵 차단 (P6 신규).
+- **Definition of Done (DoD) 의무화**: 모든 milestone은 측정 가능한 DoD 없이 생성 불가. 모든 DoD PASS 없이 done 불가 (P7 신규).
 - **Issue 엔티티 흡수**: Issue는 `BacklogItem(type=bug)`의 별칭. 별도 entity X.
-- **Flexibility 룰**: roadmap/milestone은 변경 가능하지만 변경 시 영향받는 backlog item 재정렬 자동 (P16 신규).
+- **Flexibility 룰**: roadmap/milestone은 변경 가능하지만 변경 시 영향받는 backlog item 재정렬 자동 (P8 신규).
 - 신규 Sentinel 룰 5종: `backlog_singularity`, `dod_required`, `workflow_phase_skip`, `discovered_not_logged`, `flexibility_traceability`.
 - PM 명령군 재편: `/vision`, `/refinement`, `/planning`, `/review`, `/dod` 신규. `/issue` → `/backlog add bug` 별칭.
 
@@ -168,11 +180,11 @@
 | # | 항목 | 결정 |
 |---|---|---|
 | 24 | 6-tier PM 계층 | Vision → Roadmap → Milestone → Backlog → BacklogItem → Task. 단방향. |
-| 25 | Backlog = 단일 SSOT (P13) | 모든 todo는 backlog로. 다른 곳 todo 저장 금지 (코드 주석 TODO 포함). Sentinel `backlog_singularity`. |
+| 25 | Backlog = 단일 SSOT (P5) | 모든 todo는 backlog로. 다른 곳 todo 저장 금지 (코드 주석 TODO 포함). Sentinel `backlog_singularity`. |
 | 26 | Issue 엔티티 흡수 | Issue 별도 엔티티 X. `BacklogItem(type=bug)`로 통합. `/issue add` = `/backlog add bug` 별칭. |
-| 27 | 4-step 사이클 강제 (P14) | Refinement → Planning → Execution → Review. STATE.md phase 마커로 강제. 스킵 시 Sentinel `workflow_phase_skip` BLOCK. |
-| 28 | DoD 의무화 (P15) | 모든 milestone은 측정 가능한 DoD 없이 생성 불가. verify_cmd 필수. 모두 passed 없이 done 불가. |
-| 29 | Flexibility 룰 (P16) | roadmap/milestone 변경 시 영향 backlog item 자동 재정렬 + CONTEXT.md append-only 로그. |
+| 27 | 4-step 사이클 강제 (P6) | Refinement → Planning → Execution → Review. STATE.md phase 마커로 강제. 스킵 시 Sentinel `workflow_phase_skip` BLOCK. |
+| 28 | DoD 의무화 (P7) | 모든 milestone은 측정 가능한 DoD 없이 생성 불가. verify_cmd 필수. 모두 passed 없이 done 불가. |
+| 29 | Flexibility 룰 (P8) | roadmap/milestone 변경 시 영향 backlog item 자동 재정렬 + CONTEXT.md append-only 로그. |
 | 30 | DoD 측정 가능성 자동 검증 | DoD criterion에 "대충", "잘", "괜찮으면" 등 비측정 표현 발견 시 BLOCK. verify_cmd 빈 항목 BLOCK. |
 | 31 | Discovered-not-logged 강제 | 워커가 새 발견 언급 후 backlog item 미생성 → BLOCK. 코드 주석 TODO 단독 금지. |
 | 32 | BacklogItem 타입 카탈로그 | `feature` / `bug` / `tech_debt` / `research` / `spike` 5종. 다른 type 거부. |
@@ -184,7 +196,7 @@
 ## v0.4 (2026-05-20)
 
 ### 변경 요약
-- **Maestro = 단일 사용자 창구 + PM 엔티티 매니저** (P12 신규). 5종 엔티티 관리: roadmap / milestone / task / issue / backlog.
+- **Maestro = 단일 사용자 창구 + PM 엔티티 매니저** (P2 신규). 5종 엔티티 관리: roadmap / milestone / task / issue / backlog.
 - Maestro의 CRUD 책무 명시 (등록/삭제/수정 + 상태 전이).
 - **Foreman은 user-facing 제거**: Maestro로부터 "현재 해야 할 일 + 명세서"를 받는 sub-agent로 좌천. 사용자 직접 호출 X.
 - **Spec 스키마 / Report 스키마** 표준화 (Maestro ↔ Foreman 인터페이스).
@@ -209,9 +221,9 @@
 ## v0.3 (2026-05-20)
 
 ### 변경 요약
-- **TDD 강제** (P9 신규): 코드 작업 워커는 RED→GREEN→REFACTOR 사이클 무조건. 워커 내부 step 5→7로 확장. Sentinel `tdd_violation` 룰 P0. Designer/Strategist/Tech-Writer 등 prose 작업은 명시적 제외.
-- **Compound 단계 신규** (P10): 모든 워커 task 끝, 모든 Phase 끝, 모든 Ralph 사이클 끝에 **3-tier compound** 단계 추가. 발생한 실수·교훈을 `.harness/lessons/`로 영구화하여 다음 사이클에 재사용.
-- **하네스 자기 진화** (P11 신규 + Phase 8 신규): Agent-Architect 워커가 `sentinel-log` + `lessons` + `proposals`를 주기 분석하여 신규 skill/hook/agent/룰을 **제안 문서**로 작성.
+- **TDD 강제** (P11 신규): 코드 작업 워커는 RED→GREEN→REFACTOR 사이클 무조건. 워커 내부 step 5→7로 확장. Sentinel `tdd_violation` 룰 P0. Designer/Strategist/Tech-Writer 등 prose 작업은 명시적 제외.
+- **Compound 단계 신규** (P15): 모든 워커 task 끝, 모든 Phase 끝, 모든 Ralph 사이클 끝에 **3-tier compound** 단계 추가. 발생한 실수·교훈을 `.harness/lessons/`로 영구화하여 다음 사이클에 재사용.
+- **하네스 자기 진화** (P16 신규 + Phase 8 신규): Agent-Architect 워커가 `sentinel-log` + `lessons` + `proposals`를 주기 분석하여 신규 skill/hook/agent/룰을 **제안 문서**로 작성.
 - 워커 추천 빈도 차이 반영 (코드 vs prose 작업의 step 차등).
 
 ### 결정 사항
@@ -269,11 +281,11 @@
 | 32 | BacklogItem 타입 카탈로그 | v0.5 |
 | 31 | Discovered-not-logged 강제 | v0.5 |
 | 30 | DoD 측정 가능성 자동 검증 | v0.5 |
-| 29 | Flexibility 룰 (P16) | v0.5 |
-| 28 | DoD 의무화 (P15) | v0.5 |
-| 27 | 4-step 사이클 강제 (P14) | v0.5 |
+| 29 | Flexibility 룰 (P8) | v0.5 |
+| 28 | DoD 의무화 (P7) | v0.5 |
+| 27 | 4-step 사이클 강제 (P6) | v0.5 |
 | 26 | Issue 엔티티 흡수 | v0.5 |
-| 25 | Backlog = SSOT (P13) | v0.5 |
+| 25 | Backlog = SSOT (P5) | v0.5 |
 | 24 | 6-tier PM 계층 | v0.5 |
 | 23 | milestone 단위 종료 조건 | v0.4 → v0.5 재해석 |
 | 22 | Phase 1의 Foreman 제거 | v0.4 → v0.5 재해석 |

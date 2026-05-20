@@ -82,7 +82,7 @@ Dry-run must prove:
 | Decision | Default |
 |---|---|
 | fixed core | TDD, Maestro Core, Backlog SSOT, DoD, 4-step cycle, Sentinel, Compound, Phase 8 |
-| adaptive layer | worker profiles, conventions, repo layout, commands, release rules |
+| evolving project areas | worker profiles, conventions, repo layout, commands, release rules |
 | profile files | `.harness/PROJECT_PROFILE.md`, `.harness/CONVENTIONS.md` |
 | Sentinel project rules | read from profile/registry, not hardcoded stack assumptions |
 | evolution | repeated findings and user preferences become proposals |
