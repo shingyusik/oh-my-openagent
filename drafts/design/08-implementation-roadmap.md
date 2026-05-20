@@ -47,7 +47,7 @@
 
 ## 8.3 Dry-Run Acceptance
 
-Use a small general coding project, not a product-type-specific app.
+Use a small general coding project with enough files, tests, and workflow decisions to exercise the core harness.
 
 Dry-run must prove:
 
@@ -77,7 +77,7 @@ Dry-run must prove:
 | report surface | Report Editor summary + Maestro Core final wording |
 | context | indexes + active summaries; body reads on demand |
 
-### General Coding Harness
+### VibeForge Harness
 
 | Decision | Default |
 |---|---|

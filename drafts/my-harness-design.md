@@ -1,6 +1,7 @@
-# 코딩 하네스 설계
+# VibeForge Harness 설계
 
 > 베이스: `oh-my-openagent` (OpenCode 플러그인 아키텍처) 위에 얹는 커스텀 레이어.
+> 바이브코딩 기법을 구조화하고, 프로젝트 경험으로 계속 진화하는 하네스.
 > 변경 이력은 [`CHANGELOG.md`](./CHANGELOG.md) 참조. 본 문서들은 **현재 상태만** 기술한다.
 
 ---

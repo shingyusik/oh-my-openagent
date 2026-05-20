@@ -6,7 +6,7 @@
 
 ## 1.1 Concept
 
-The harness is a general coding harness, not a SaaS-specific stack. It keeps a small set of workflow laws fixed and lets project-specific workers, conventions, repository layout, and management rules evolve from use.
+VibeForge Harness is a self-evolving harness for disciplined vibe coding. It keeps a small set of workflow laws fixed and lets project-specific workers, conventions, repository layout, and management rules evolve from use.
 
 One sentence:
 
@@ -23,7 +23,7 @@ One sentence:
 | **Convention registry** | Starts small, grows from repeated findings | naming, dependency direction, formatting, test pyramid, release rules |
 | **Worker profiles** | Seeded, then split/merge/deprecate by evidence | implementation, data, quality, ops, documentation, project-specific specialists |
 
-The core protects correctness. The adaptive layer prevents the harness from becoming a rigid product template.
+The core protects correctness. The adaptive layer lets each project develop its own execution shape.
 
 ---
 

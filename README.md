@@ -1,11 +1,11 @@
-# Coding Harness
+# VibeForge Harness
 
 > Status: design in progress.
 > Base runtime: `oh-my-openagent`, an OpenCode plugin architecture.
 
-This repository is being reshaped into a general coding harness.
+VibeForge Harness is a self-evolving harness for disciplined vibe coding.
 
-The harness does not assume a fixed product category or stack. It keeps a small set of core workflow laws fixed, then lets project-specific workers, code conventions, repository rules, and management practices evolve from actual use.
+The harness keeps a small set of core workflow laws fixed, then lets project-specific workers, code conventions, repository rules, and management practices evolve from actual use.
 
 ## One Sentence
 
@@ -40,7 +40,7 @@ The project shapes the harness over time:
 | Management rules | Backlog, milestone, review, and reporting habits refined from use |
 | Harness architecture | Agent Architect proposes new hooks, skills, workers, and rules |
 
-The point is to enforce discipline without freezing the project into one product category or one stack.
+The point is to enforce discipline while letting each project grow its own execution shape.
 
 ## Architecture
 
@@ -110,7 +110,7 @@ Read these in order:
 
 ## Current Direction
 
-The immediate design goal is to keep the core small and strict:
+The immediate design goal for VibeForge is to keep the core small and strict:
 
 - one user surface
 - one backlog source of truth
@@ -120,4 +120,4 @@ The immediate design goal is to keep the core small and strict:
 - quality gates that can block
 - lessons that compound into future behavior
 
-Inside that frame, the harness should adapt to the user and the project instead of forcing a prebuilt product, repository, or application shape.
+Inside that frame, the harness should adapt to the user, the project, and the evidence produced by repeated work.
