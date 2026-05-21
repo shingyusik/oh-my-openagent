@@ -1,10 +1,10 @@
-# 07. Runtime Inventory, State, Profiles, and Commands
+# 07. 런타임 인벤토리, 상태, 프로필, 명령
 
-> This document lists runtime files, persistent state, project profile/conventions, and user command surface.
+> 이 문서는 런타임 파일, 영속 상태, 프로젝트 프로필/컨벤션, 사용자 명령 surface를 정리한다.
 
 ---
 
-## 7.1 Directory Inventory
+## 7.1 디렉터리 인벤토리
 
 ```text
 project/
@@ -116,14 +116,14 @@ project/
   .worktrees/
     <worker-profile>-<T-id>-<U-id>/
 
-  <project body>
+  <프로젝트 본체>
 ```
 
 ---
 
-## 7.2 Project Profile
+## 7.2 프로젝트 프로필
 
-`.harness/PROJECT_PROFILE.md` records the project-specific layer:
+`.harness/PROJECT_PROFILE.md`는 프로젝트 고유 계층을 기록한다:
 
 ```yaml
 project_profile:
@@ -153,27 +153,27 @@ project_profile:
     security_scan_commands: []
 ```
 
-Phase 0 creates it. Phase 8 evolves it.
+Phase 0가 생성한다. Phase 8이 진화시킨다.
 
 ---
 
-## 7.3 Convention Registry
+## 7.3 컨벤션 레지스트리
 
-`.harness/CONVENTIONS.md` separates:
+`.harness/CONVENTIONS.md`는 다음을 분리한다:
 
-| Layer | Examples | Change Path |
+| 계층 | 예시 | 변경 경로 |
 |---|---|---|
-| Core rules | TDD, Backlog SSOT, 4-step cycle | only explicit major decision |
-| Project rules | naming, layout, dependency direction, test style | Phase 0 + proposals |
-| Worker rules | review lens, allowed paths, verify commands | worker profile proposals |
+| 코어 룰 | TDD, Backlog SSOT, 4-step 사이클 | 명시적 주요 결정만 |
+| 프로젝트 룰 | 네이밍, 레이아웃, 의존성 방향, 테스트 스타일 | Phase 0 + proposal |
+| 워커 룰 | review lens, 허용 경로, verify 명령 | 워커 프로필 proposal |
 
-Sentinel reads this registry for project-specific checks.
+Sentinel은 프로젝트 고유 점검을 위해 이 레지스트리를 읽는다.
 
 ---
 
 ## 7.4 STATE.md
 
-`.harness/STATE.md` is protected by an exclusive lock.
+`.harness/STATE.md`는 배타 lock으로 보호된다.
 
 ```yaml
 current_cycle:
@@ -196,49 +196,49 @@ last_sentinel_run:
 recent_events: []
 ```
 
-Writers:
+쓰기 주체:
 
-| Writer | Scope |
+| Writer | 범위 |
 |---|---|
-| Maestro Core | phase/mode approval |
-| Board Clerk | board-derived status summary |
-| Foreman | active/completed/blocked workers |
-| Sentinel | last run and findings |
-| Worker | recent event about own task only |
+| Maestro Core | 페이즈/모드 승인 |
+| Board Clerk | board 기반 상태 요약 |
+| Foreman | active/completed/blocked 워커 |
+| Sentinel | 마지막 실행과 발견 |
+| Worker | 자신의 task에 대한 최근 이벤트만 |
 
 ---
 
-## 7.5 Context Isolation Inventory
+## 7.5 컨텍스트 격리 인벤토리
 
-| Layer | Holds |
+| 계층 | 보유 내용 |
 |---|---|
-| Maestro Core | goal, indexes, active item summaries, report summaries, HITL asks |
-| Private PM sub-agent | one delegated PM task |
-| Foreman | Task Spec, DAG, worker summaries |
-| Worker profile | own Task Spec slice and worktree |
-| Worker step | prior step artifact only |
+| Maestro Core | 목표, 인덱스, 활성 항목 요약, 보고서 요약, HITL 질의 |
+| Private PM sub-agent | 위임된 PM task 한 건 |
+| Foreman | Task Spec, DAG, 워커 요약 |
+| 워커 프로필 | 자신의 Task Spec 슬라이스와 worktree |
+| 워커 step | 직전 step 산출물만 |
 
-Raw diffs, raw Sentinel logs, and lower-layer outputs are not user-facing.
+raw diff, raw Sentinel 로그, 하위 계층 출력은 사용자 대면이 아니다.
 
 ---
 
-## 7.6 User Commands
+## 7.6 사용자 명령
 
-| Command | Purpose |
+| 명령 | 목적 |
 |---|---|
-| `/start "<goal>"` | Phase 0 bootstrap |
+| `/start "<goal>"` | Phase 0 부트스트랩 |
 | `/mode auto|gated|plan-only|dry-run` | run mode |
-| `/board` | PM board summary |
-| `/vision`, `/roadmap`, `/milestone` | PM entity management |
-| `/backlog`, `/issue`, `/task` | work item management |
-| `/dod` | DoD management and verification |
-| `/refinement`, `/planning`, `/execution`, `/review` | phase controls |
-| `/next` | next recommended action |
-| `/report` | task/milestone reports |
-| `/sentinel-check` | manual quality check |
-| `/lessons`, `/compound-now` | learning |
-| `/evolve`, `/proposals` | harness evolution |
-| `/tdd-exception` | approved exception request |
-| `/pause`, `/resume`, `/stop` | lifecycle control |
+| `/board` | PM board 요약 |
+| `/vision`, `/roadmap`, `/milestone` | PM 엔티티 관리 |
+| `/backlog`, `/issue`, `/task` | 작업 항목 관리 |
+| `/dod` | DoD 관리와 검증 |
+| `/refinement`, `/planning`, `/execution`, `/review` | 페이즈 제어 |
+| `/next` | 다음 권장 액션 |
+| `/report` | task/마일스톤 보고서 |
+| `/sentinel-check` | 수동 품질 점검 |
+| `/lessons`, `/compound-now` | 학습 |
+| `/evolve`, `/proposals` | 하네스 진화 |
+| `/tdd-exception` | 승인된 예외 요청 |
+| `/pause`, `/resume`, `/stop` | 라이프사이클 제어 |
 
-The user invokes commands through Maestro Core.
+사용자는 Maestro Core를 통해 명령을 호출한다.
